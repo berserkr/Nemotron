@@ -1,0 +1,41 @@
+run: null
+
+recipe:
+  _target_: megatron.bridge.recipes.nemotronh.nemotron_3_super.nemotron_3_super_finetune_config
+  
+  # The Output Realm (Where your spoils will be saved)
+  dir: /mnt/vast/proj/checkpoints/bathen/models/sft
+  name: nemo_ckpts_128k
+  
+  # The Spells of Initialization
+  packed_sequence: true
+  peft: null
+  pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/NVIDIA-Nemotron-3-Super-120B-A12B-Base-BF16
+  
+  # The MoE Cleaving (Optimized for 4-GPU Nodes)
+  tensor_model_parallel_size: 4
+  pipeline_model_parallel_size: 8
+  context_parallelism: 1
+  sequence_parallelism: true
+  expert_model_parallelism: 8   # <-- The true shield. Spreads the 120B weight across 8 GPUs.
+  
+  # The Pacing of the Strike
+  seq_length: 131072
+  micro_batch_size: 1
+  global_batch_size: 64
+  finetune_lr: 5.0e-6
+  lr_warmup_iters: 4
+  train_iters: 100
+  eval_interval: 100
+  save_interval: 20
+  
+  # The Omens (W&B Logging)
+  wandb_project: "super_3_replication_128k"
+  wandb_entity: "bathen"
+
+# The Domain of the Data (Merged natively by Hydra)
+dataset:
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/nemo_super3_128k/splits
+  seq_length: 131072
+  packed_sequence_specs:
+    packed_sequence_size: 131072

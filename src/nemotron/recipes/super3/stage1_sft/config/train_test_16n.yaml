@@ -1,0 +1,39 @@
+run: null
+
+recipe:
+  _target_: megatron.bridge.recipes.nemotronh.nemotron_3_super.nemotron_3_super_finetune_config
+  packed_sequence: true
+  peft: null
+  
+  # The Geometry of the 64-GPU Warband
+  tensor_model_parallel_size: 4
+  pipeline_model_parallel_size: 4
+  expert_model_parallelism: 4
+  
+  # Forging the 4K Context Window
+  seq_length: 4096  # <-- Overrides the python default of 2048
+  micro_batch_size: 1
+
+dataset:
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/nemo_super3_test/splits
+  seq_length: 4096
+  packed_sequence_specs:
+    packed_sequence_size: 4096
+
+train:
+  train_iters: 100
+  global_batch_size: 64
+
+scheduler:
+  lr_warmup_iters: 4
+
+logger:
+  log_interval: 10
+  wandb_project: "super_3_replication"
+  wandb_entity: "bathen"
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/sft/nemo_ckpts
+  save_interval: 20
+  pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/NVIDIA-Nemotron-3-Super-120B-A12B-Base-BF16
+  finetune: true

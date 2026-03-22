@@ -138,6 +138,7 @@ def _build_dataset_config(dataset_config: DictConfig, current_dataset: Any) -> F
             packed_train_data_path=specs_dict.get("packed_train_data_path"),
             packed_val_data_path=specs_dict.get("packed_val_data_path"),
             packed_metadata_path=specs_dict.get("packed_metadata_path"),
+            pad_seq_to_mult=specs_dict.get("pad_seq_to_mult", 1),  # <-- ADD THIS
         )
 
     return FinetuningDatasetConfig(

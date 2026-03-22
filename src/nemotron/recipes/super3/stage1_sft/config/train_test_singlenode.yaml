@@ -1,0 +1,46 @@
+run: null
+
+recipe:
+  _target_: megatron.bridge.recipes.nemotronh.nemotron_nano_v2.nemotron_nano_9b_v2_sft_config
+  #packed_sequence: true
+  
+  # STRUGGLER'S WARNING: Set this to a LoRA config if the 4 GB200s OOM during full FT.
+  #peft: null 
+  
+  # The Geometry of the Solitary Vanguard (4 GPUs total)
+  #tensor_model_parallel_size: 4       # Cleaving the massive weights across all 4 GPUs
+  #pipeline_model_parallel_size: 1     # No GPUs left for pipeline stages
+  #expert_model_parallelism: 1         # MUST be 1 (or removed) for dense models and DP=1
+  
+  # Forging the 4K Context Window
+  #seq_length: 4096  
+  #micro_batch_size: 1
+
+model:
+  seq_length: 8192
+
+dataset:
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/nemo_super3_new/splits
+  seq_length: 8192
+  packed_sequence_specs:
+    packed_sequence_size: 8192
+
+train:
+  train_iters: 100
+  # With 1 Data Parallel replica, a GBS of 32 means 32 gradient accumulation steps.
+  # Adjust this downward if your training cycles take too long.
+  global_batch_size: 32
+
+scheduler:
+  lr_warmup_iters: 4
+
+logger:
+  log_interval: 10
+  wandb_project: "super_3_replication"
+  wandb_entity: "bathen"
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/sft/NVIDIA-Nemotron-Nano-9B-v2-Base-sft-test
+  save_interval: 20
+  pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/NVIDIA-Nemotron-Nano-9B-v2-Base
+  finetune: true

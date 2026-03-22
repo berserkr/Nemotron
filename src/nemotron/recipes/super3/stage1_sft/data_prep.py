@@ -175,6 +175,7 @@ class SFTDataPrepConfig:
     # Tokenizer config (nested)
     tokenizer: TokenizerConfig = field(default_factory=lambda: TokenizerConfig(
         model="nvidia/NVIDIA-Nemotron-Nano-9B-v2",
+        trust_remote_code=True,
     ))
     """Tokenizer configuration"""
 
@@ -256,6 +257,9 @@ class SFTDataPrepConfig:
     observability: ObservabilityConfig = field(default_factory=ObservabilityConfig)
     """Pipeline observability settings"""
 
+    pad_seq_to_mult: int = 1
+    """Pad each sequence to a multiple of this value. Set to CP*2 for context parallelism."""
+
     def __post_init__(self) -> None:
         # Ensure paths are Path objects
         if isinstance(self.blend_path, str):
@@ -327,6 +331,7 @@ def run_data_prep_main(cfg: SFTDataPrepConfig) -> SFTDataArtifact:
         max_rows=cfg.sample,
         sample_seed=cfg.sample_seed,
         force=cfg.force,
+        pad_seq_to_mult=cfg.pad_seq_to_mult,
     )
 
     # Phase 2: 3-stage pipeline

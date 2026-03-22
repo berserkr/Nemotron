@@ -44,7 +44,8 @@ from nemotron.data_prep.packing.spool import (
     SequenceSpoolReader,
     SequenceSpoolWriter,
 )
-
+from pathlib import Path
+import json
 
 def _apply_chat_template(tokenizer: PreTrainedTokenizerBase, chat_template: str) -> None:
     if chat_template == "nano3":
@@ -156,6 +157,7 @@ def process_chat_sft_spool_core(
     seed: int | None,
     used_in_filter: str | None,
     used_in_field: str,
+    pad_seq_to_mult: int = 1,
 ) -> dict[str, Any]:
     """Tokenize+mask a ChatSFT shard into a SequenceSpool intermediate.
 
@@ -236,11 +238,42 @@ def process_chat_sft_spool_core(
 
         for chunks, _ in masked_results:
             processed_chunks = split_system_user_chunks(chunks)
+
+            # chunk-only debug can go here
+            if stats["num_output_sequences"] < 5:
+                debug_record = {
+                    "num_chunks": len(processed_chunks),
+                    "chunk_roles": [ch.get("role") for ch in processed_chunks],
+                    "chunk_char_lens": [len(ch.get("content", "")) for ch in processed_chunks],
+                    "chunk_previews": [ch.get("content", "")[:120] for ch in processed_chunks[:10]],
+                }
+
             try:
                 input_ids, loss_mask = _tokenize_chunks_with_mask(tokenizer, processed_chunks)
             except Exception:
                 stats["num_errors"] += 1
                 continue
+
+            # tokenized debug must go here
+            if stats["num_output_sequences"] < 5:
+                debug_record.update(
+                    {
+                        "roles": [ch.get("role") for ch in processed_chunks],
+                        "len_input_ids": len(input_ids),
+                        "sum_loss_mask": int(sum(loss_mask)),
+                        "first_50_tokens": input_ids[:50],
+                        "first_50_loss_mask": loss_mask[:50],
+                    }
+                )
+                from pathlib import Path
+                import json
+
+                debug_dir = Path("/mnt/vast/proj/checkpoints/bathen/debug_sft")
+                debug_dir.mkdir(parents=True, exist_ok=True)
+                debug_path = debug_dir / f"shard_{shard_index:06d}_debug.jsonl"
+                with open(debug_path, "a") as f:
+                    f.write(json.dumps(debug_record) + "\n")
+                    f.flush()
 
             if not input_ids:
                 continue
@@ -250,6 +283,12 @@ def process_chat_sft_spool_core(
                 loss_mask = loss_mask[:max_doc_tokens]
                 stats["num_truncated"] += 1
 
+            if pad_seq_to_mult > 1:
+                padded_len = ((len(input_ids) + pad_seq_to_mult - 1) // pad_seq_to_mult) * pad_seq_to_mult
+                pad_count = padded_len - len(input_ids) + 1  # +1 for label truncation
+                pad_id = tokenizer.eos_token_id or 0
+                input_ids = input_ids + [pad_id] * pad_count
+                loss_mask = loss_mask + [0] * pad_count
             writer.append(input_ids, loss_mask)
             stats["num_output_sequences"] += 1
 

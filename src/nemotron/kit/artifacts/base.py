@@ -20,7 +20,8 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Any, Self
+from typing import TYPE_CHECKING, Annotated, Any
+from typing_extensions import Self
 
 from pydantic import BaseModel, Field, model_validator
 

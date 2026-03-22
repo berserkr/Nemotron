@@ -1,1 +1,10 @@
-{"datasets": []}
+{
+  "datasets": [  
+    {
+      "name": "cascade_sft_stage1_general",
+      "path": "file:///mnt/vast/proj/checkpoints/bathen/datasets/sft/Nemotron-Cascade-SFT-Stage-1/general.jsonl",
+      "type": "jsonl",
+      "weight": 1.0
+    }
+  ]
+}

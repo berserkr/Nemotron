@@ -166,6 +166,7 @@ class SftPlanAdapter:
             seed=item.seed,
             parquet_row_group_size=item.parquet_row_group_size,
             parquet_compression=item.parquet_compression,
+            pad_seq_to_mult=item.pad_seq_to_mult,
         )
 
     def get_output_verifier(
@@ -207,6 +208,7 @@ def setup_sft_run(
     parquet_compression: str = "zstd",
     max_doc_tokens: int | None = None,
     max_rows: int | None = None,
+    pad_seq_to_mult: int = 1,
     sample: str | int | None = None,
     sample_seed: int = 42,
     force: bool = False,
@@ -277,6 +279,7 @@ def setup_sft_run(
             "seed": packing_seed,
             "parquet_row_group_size": int(parquet_row_group_size),
             "parquet_compression": str(parquet_compression),
+            "pad_seq_to_mult": int(pad_seq_to_mult),
         },
     }
     if sample is not None:
@@ -321,6 +324,7 @@ def setup_sft_run(
                 seed=packing_seed,
                 parquet_row_group_size=int(parquet_row_group_size),
                 parquet_compression=str(parquet_compression),
+                pad_seq_to_mult=int(pad_seq_to_mult),
             )
         )
 
@@ -417,6 +421,7 @@ def run_sft_pipeline(
     parquet_compression: str = "zstd",
     max_doc_tokens: int | None = None,
     max_rows: int | None = None,
+    pad_seq_to_mult: int = 1,
     sample: str | int | None = None,
     sample_seed: int = 42,
     force: bool = False,
@@ -455,6 +460,7 @@ def run_sft_pipeline(
         parquet_compression=parquet_compression,
         max_doc_tokens=max_doc_tokens,
         max_rows=max_rows,
+        pad_seq_to_mult=pad_seq_to_mult,
         sample=sample,
         sample_seed=sample_seed,
         force=force,

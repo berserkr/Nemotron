@@ -114,6 +114,7 @@ class SftDatasetWorkItem:
     parquet_row_group_size: int = 1000
     parquet_compression: str = "zstd"
 
+    pad_seq_to_mult: int = 1
 
 @dataclass
 class SftShardWorkItem:
@@ -148,6 +149,7 @@ class SftShardWorkItem:
     parquet_row_group_size: int = 1000
     parquet_compression: str = "zstd"
 
+    pad_seq_to_mult: int = 1
 
 @dataclass
 class JsonlDatasetWorkItem:

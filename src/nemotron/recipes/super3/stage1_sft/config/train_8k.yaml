@@ -1,0 +1,48 @@
+run: null
+
+recipe:
+  _target_: megatron.bridge.recipes.nemotronh.nemotron_3_super.nemotron_3_super_finetune_config
+  packed_sequence: true
+  peft: null
+  
+  # The Geometry of the 256-GPU Warband (64 Nodes)
+  tensor_model_parallel_size: 4
+  pipeline_model_parallel_size: 4
+  expert_model_parallelism: 8
+  
+  # Forging the 4K Context Window
+  seq_length: 8192  # Overrides the default 2048 to match the packing
+  micro_batch_size: 1
+
+dataset:
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/nemo_super3_8k/splits
+  seq_length: 8192
+  packed_sequence_specs:
+    packed_sequence_size: 8192
+
+train:
+  train_iters: 100
+  # GBS 128 feeds the 16 Data Parallel replicas perfectly (8 micro-batches per pipeline)
+  global_batch_size: 128
+
+scheduler:
+  lr_warmup_iters: 4
+
+logger:
+  log_interval: 10
+  wandb_project: "super_3_replication_8k"
+  wandb_entity: "bathen"
+
+dist:
+  distributed_timeout_minutes: 120
+  distributed_timeout_seconds_after_init: 7200
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/sft/nemo_ckpts_8k
+  save_interval: 20 # <-- The warband fights 25 iterations before pausing to scribe
+  pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/NVIDIA-Nemotron-3-Super-120B-A12B-Base-BF16
+  finetune: true
+
+  # --- The True Asynchronous Save Armor ---
+  #ckpt_format: torch_dist
+  #async_save: true 

@@ -1,0 +1,34 @@
+run: null
+
+recipe:
+  _target_: megatron.bridge.recipes.nemotronh.nemotron_nano_v2.nemotron_nano_9b_v2_sft_config
+
+model:
+  recompute_granularity: "full"
+  recompute_method: "uniform"
+  recompute_num_layers: 7
+
+dataset:
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/nemo_super3_128k/splits
+  seq_length: 131072
+  packed_sequence_specs:
+    packed_sequence_size: 131072
+    pad_seq_to_mult: 4
+
+train:
+  train_iters: 100
+  global_batch_size: 32
+
+scheduler:
+  lr_warmup_iters: 4
+
+logger:
+  log_interval: 1
+  wandb_project: "cp2_validation_9b"
+  wandb_entity: "bathen"
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/sft/NVIDIA-Nemotron-Nano-9B-v2-Base-sft-cp2-test
+  save_interval: 20
+  pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/NVIDIA-Nemotron-Nano-9B-v2-Base
+  finetune: true

@@ -40,6 +40,8 @@ from nemotron.data_prep.core.receipt import ReceiptManager
 from nemotron.data_prep.stages.context import PipelineContext
 from nemotron.data_prep.core.work_items import SftShardWorkItem
 
+import logging
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class PackedSftParquetStageConfig:
@@ -102,6 +104,7 @@ class PackedSftParquetStage(pipelines_v1.Stage[SftShardWorkItem, SftShardWorkIte
     def setup(self, worker_metadata: pipelines_v1.WorkerMetadata) -> None:
         from transformers import AutoTokenizer
 
+        logger.info(f"XXX - {self._ctx.resolved_tokenizer}")
         self._tokenizer = AutoTokenizer.from_pretrained(
             self._ctx.resolved_tokenizer["model"],
             revision=self._ctx.resolved_tokenizer.get("resolved_revision"),
@@ -229,6 +232,7 @@ class PackedSftParquetStage(pipelines_v1.Stage[SftShardWorkItem, SftShardWorkIte
             seed=task.seed,
             used_in_filter=task.used_in_filter,
             used_in_field=task.used_in_field,
+            pad_seq_to_mult=int(task.pad_seq_to_mult),
         )
 
         # Packing to Parquet is executed during _build_completed_payload() to ensure stats/files are captured there.
