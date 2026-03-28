@@ -1,0 +1,57 @@
+# Granite 30B SFT — 128k context, CP=4
+#
+# Hardware: 64 nodes x 4 GB200 = 256 GPUs
+# Parallelism: TP=4, PP=16, CP=4, SP=True
+# GPUs/model: 4*16*4 = 256, DP replicas: 1
+# 64 layers / PP=16 = 4 layers per pipeline stage
+# Each GPU sees 32k tokens (128k / CP=4)
+# pad_seq_to_mult = CP * 2 = 8
+#
+# NOTE: Use original HF checkpoint (not transmuted) with AutoBridge recipe.
+# Set FILELOCK_LOCK_CLASS=soft in launch env to avoid NFS lock issues.
+
+recipe:
+  _target_: megatron.bridge.recipes.granite.granite_30b.granite_30b_finetune_config
+  tensor_model_parallel_size: 4
+  pipeline_model_parallel_size: 16
+  context_parallelism: 4
+  sequence_parallelism: true
+  seq_length: 131072
+  micro_batch_size: 1
+  global_batch_size: 32
+  finetune_lr: 5.0e-6
+  lr_warmup_iters: 50
+  train_iters: 1000
+  packed_sequence: true
+
+model:
+  recompute_granularity: "full"
+  recompute_method: "block"
+  recompute_num_layers: 1
+
+ddp:
+  use_distributed_optimizer: true
+
+dataset:
+  seq_length: 131072
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_30b_tok_cp4/splits
+  packed_sequence_specs:
+    packed_sequence_size: 131072
+    pad_seq_to_mult: 8
+
+train:
+  train_iters: 1000
+  global_batch_size: 32
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_128k
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_128k
+  save_interval: 100
+  pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/30b-soft-lc-512k-lr1e-4-merged-3-7
+  finetune: false
+
+logger:
+  log_interval: 1
+  wandb_project: "granite30b_sft_128k_cp2"
+  wandb_exp_name: "granite30b_sft_128k_cp2"
+  wandb_entity: "bathen"

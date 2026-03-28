@@ -4,26 +4,29 @@ recipe:
   _target_: megatron.bridge.recipes.qwen.qwen3_cp.qwen3_8b_cp_validation_config
 
 dataset:
-  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/qwen3_8b_128k/splits
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/qwen3_8b_128k_retok_v2/splits
   seq_length: 131072
   packed_sequence_specs:
     packed_sequence_size: 131072
     pad_seq_to_mult: 4        # CP=2 -> CP*2=4  |  change to 8 for CP=4
  
 train:
-  train_iters: 20
-  global_batch_size: 32
+  train_iters: 2000
+  eval_interval: 100
+  global_batch_size: 64
  
 scheduler:
-  lr_warmup_iters: 4
+  lr_warmup_iters: 50
  
 logger:
   log_interval: 1
-  wandb_project: "cp2_validation_qwen3_8b"
+  wandb_project: "full_sft_qwen3_8b_128k_validation"
+  wandb_exp_name: "cp2_validation_qwen3_8b_128k-loadedweights"
   wandb_entity: "bathen"
  
 checkpoint:
-  save: /mnt/vast/proj/checkpoints/bathen/models/sft/Qwen3-8B-Base-cp2-test-16nodes
-  save_interval: 20
+  save: /mnt/vast/proj/checkpoints/bathen/models/sft/Qwen3-8B-Base-cp2-test-16nodes-2000iter-loadedweights
+  #load: /mnt/vast/proj/checkpoints/bathen/models/sft/Qwen3-8B-Base-cp2-test-16nodes-2000iter-v3
+  save_interval: 250
   pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/Qwen3-8B-Base
   finetune: true

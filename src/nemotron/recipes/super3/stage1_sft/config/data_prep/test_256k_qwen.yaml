@@ -12,10 +12,10 @@ run:
 #   PWD: Current working directory (for path resolution)
 
 # Path to data blend JSON file
-blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/datasets_config_256k.json
+blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/datasets_config_128k.json
 
 # Output directory for packed Parquet data
-output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/nemo_super3_256k_retok
+output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/qwen3_8b_256k_retok
 
 # Number of output shards for parallel loading
 num_shards: 128
@@ -23,7 +23,7 @@ num_shards: 128
 # Tokenizer configuration (nested)
 tokenizer:
   # TODO(super3): Replace with actual Super3 tokenizer model
-  model: nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16
+  model: /mnt/vast/proj/checkpoints/bathen/models/base/Qwen3-8B-Base
   add_bos: false
   add_eos: true
 
@@ -98,7 +98,7 @@ download:
 
 # Tokenization stage config
 tokenization:
-  cpus_per_worker: 4
+  cpus_per_worker: 8
 
 # =============================================================================
 # Pipeline Config

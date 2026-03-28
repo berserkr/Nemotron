@@ -1,0 +1,40 @@
+run: null
+
+recipe:
+  _target_: megatron.bridge.recipes.nemotronh.nemotron_3_super.nemotron_3_super_finetune_config
+  
+  # The Output Realm
+  dir: /mnt/vast/proj/checkpoints/bathen/models/sft
+  name: nemo_super3_256k_32nodes_test
+  
+  # Initialization
+  packed_sequence: true
+  peft: null
+  pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/NVIDIA-Nemotron-3-Super-120B-A12B-Base-BF16
+  
+  # 32-Node Parallelism (128 GPUs Total)
+  tensor_model_parallel_size: 4      # Fits 1 Node
+  pipeline_model_parallel_size: 8    # Spans 8 sets of nodes
+  context_parallelism: 4             # Spans 4 sets of nodes (Total 4*8*4=128)
+  sequence_parallelism: true
+  expert_model_parallelism: 8        # Distributed across the PP/CP ranks
+  
+  # 256k Context Strike
+  seq_length: 262144
+  micro_batch_size: 1
+  global_batch_size: 64              # 64 steps to update weights
+  finetune_lr: 5.0e-6
+  lr_warmup_iters: 4
+  train_iters: 100
+  eval_interval: 100
+  save_interval: 20
+  
+  wandb_project: "super_3_256k_32node_sft"
+  wandb_entity: "bathen"
+
+dataset:
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/nemo_super3_256k_retok/splits
+  seq_length: 262144
+  packed_sequence_specs:
+    packed_sequence_size: 262144
+    pad_seq_to_mult: 8        # CP=4 -> CP*2=8

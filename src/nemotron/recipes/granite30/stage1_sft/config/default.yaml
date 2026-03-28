@@ -1,0 +1,31 @@
+# Granite 30B SFT — Default configuration
+#
+# This is the base config. For production runs, use one of the
+# sequence-length-specific configs (train_128k.yaml, train_256k.yaml, etc.)
+
+recipe:
+  _target_: megatron.bridge.recipes.granite.granite_30b.granite_30b_finetune_config
+  packed_sequence: true
+
+dataset:
+  seq_length: 131072
+  packed_sft_dir: null  # Set to /path/to/packed_data with train/ and valid/ subdirs
+  packed_sequence_specs:
+    packed_sequence_size: 131072
+
+train:
+  train_iters: 1000
+  global_batch_size: 32
+
+scheduler:
+  lr_warmup_iters: 50
+
+logger:
+  log_interval: 1
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft
+  save_interval: 100
+  pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/30b-soft-lc-512k-lr1e-4-merged-3-7
+  finetune: false  # Auto-set to true on first run when no checkpoint at load path

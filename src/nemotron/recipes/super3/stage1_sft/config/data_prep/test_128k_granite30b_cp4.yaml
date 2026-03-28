@@ -12,10 +12,10 @@ run:
 #   PWD: Current working directory (for path resolution)
 
 # Path to data blend JSON file
-blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/datasets_config_256k.json
+blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/datasets_config_128k.json
 
 # Output directory for packed Parquet data
-output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/nemo_super3_256k_retok
+output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_30b_tok_cp4
 
 # Number of output shards for parallel loading
 num_shards: 128
@@ -23,17 +23,17 @@ num_shards: 128
 # Tokenizer configuration (nested)
 tokenizer:
   # TODO(super3): Replace with actual Super3 tokenizer model
-  model: nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16
+  model: /mnt/vast/proj/checkpoints/bathen/models/base/30b-soft-lc-512k-lr1e-4-merged-3-7
   add_bos: false
   add_eos: true
 
 # Maximum tokens per packed sequence
-pack_size: 262144
+pack_size: 131072
 
 # Packing algorithm: 'first_fit_decreasing', 'first_fit_shuffle', 'concatenative'
 algorithm: first_fit_shuffle
 
-pad_seq_to_mult: 8    # CP=2 -> CP*2=4  |  change to 8 for CP=4
+pad_seq_to_mult: 8 # CP=1    # CP=2 -> CP*2=4  |  change to 8 for CP=4
 
 # Packing seed (null = use sample_seed)
 seed: null

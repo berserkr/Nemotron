@@ -1,0 +1,32 @@
+run: null
+
+recipe:
+  _target_: megatron.bridge.recipes.qwen.qwen3_cp_256k.qwen3_8b_cp_validation_config
+
+dataset:
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/qwen3_8b_256k_retok/splits
+  seq_length: 262144
+  packed_sequence_specs:
+    packed_sequence_size: 262144
+    pad_seq_to_mult: 8        # CP=4 -> CP*2=8
+
+train:
+  train_iters: 100
+  eval_interval: 100
+  save_interval: 20
+  global_batch_size: 32
+
+scheduler:
+  lr_warmup_iters: 4
+
+logger:
+  log_interval: 1
+  wandb_project: "cp_validation_qwen3_8b_256k"
+  wandb_exp_name": "cp4_validation_qwen3_8b_256k"
+  wandb_entity: "bathen"
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/sft/Qwen3-8B-Base-cp4-256k-test-16nodes
+  save_interval: 20
+  pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/Qwen3-8B-Base
+  finetune: true
