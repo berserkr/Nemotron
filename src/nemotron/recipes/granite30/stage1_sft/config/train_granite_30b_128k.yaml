@@ -12,7 +12,7 @@
     global_batch_size: 64
     finetune_lr: 5.0e-6
     lr_warmup_iters: 50
-    train_iters: 1000
+    train_iters: 2000
     packed_sequence: true
 
   model:
@@ -31,17 +31,17 @@
       pad_seq_to_mult: 8
 
   train:
-    train_iters: 1000
+    train_iters: 2000
     global_batch_size: 64
 
   checkpoint:
-    save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_128k
-    load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_128k
-    save_interval: 100
+    save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_128k_ver
+    load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_128k_ver
+    save_interval: 250
     finetune: true
 
   logger:
     log_interval: 1
-    wandb_project: "granite8b_sft_128k"
-    wandb_exp_name: "granite8b_sft_128k_cp2"
+    wandb_project: "granite30b_sft_128k"
+    wandb_exp_name: "granite30b_sft_128k_cp2"
     wandb_entity: "bathen"

@@ -1,0 +1,48 @@
+  # Granite 30B SFT — 128k context, CP=4
+  
+  recipe:
+    _target_: megatron.bridge.recipes.granite.granite_30b.granite_30b_finetune_config
+    hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/30b-soft-lc-512k-lr1e-4-merged-3-7
+    tensor_model_parallel_size: 4
+    pipeline_model_parallel_size: 8
+    context_parallelism: 16
+    sequence_parallelism: true
+    seq_length: 262144
+    micro_batch_size: 1
+    global_batch_size: 64
+    finetune_lr: 5.0e-6
+    lr_warmup_iters: 50
+    train_iters: 2000
+    packed_sequence: true
+
+  #model:
+  #  recompute_granularity: "full"
+  #  recompute_method: "block"
+  #  recompute_num_layers: 4
+
+  ddp:
+    use_distributed_optimizer: true
+
+  dataset:
+    seq_length: 262144
+    super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_30b_tok_256k_cp32/splits
+    packed_sequence_specs:
+      packed_sequence_size: 262144
+      pad_seq_to_mult: 64
+
+  train:
+    train_iters: 2000
+    global_batch_size: 64
+
+  checkpoint:
+    save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_256k
+    load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_256k
+    save_interval: 100
+    finetune: false
+    most_recent_k: 3
+
+  logger:
+    log_interval: 1
+    wandb_project: "granite30b_sft_256k"
+    wandb_exp_name: "granite30b_sft_256k_cp16_resume"
+    wandb_entity: "bathen"
