@@ -1,9 +1,106 @@
 # Granite 30B Training Guide
 
-End-to-end guide for packing data, training with context parallelism, and
-exporting checkpoints back to HuggingFace format.
+End-to-end guide for setting up repositories, packing data, training with
+context parallelism, and exporting checkpoints back to HuggingFace format.
 
 **Cluster**: GB200 nodes, 4 GPUs per node (184 GB each)
+**Container**: `/mnt/vast/squash/nemo_sft_0331.sqsh`
+
+---
+
+## 0. Repository Setup
+
+### Clone and Checkout
+
+Both repositories must be on the `granite_v1` branch:
+
+```bash
+# Choose your workspace (adjust to your home directory)
+export WORKDIR=/mnt/home/$USER/src/github.com
+mkdir -p $WORKDIR && cd $WORKDIR
+
+# Clone Megatron-Bridge
+git clone git@github.com:berserkr/Megatron-Bridge.git
+cd Megatron-Bridge
+git checkout granite_v1
+git submodule update --init --recursive   # pulls Megatron-LM under 3rdparty/
+cd ..
+
+# Clone Nemotron
+git clone git@github.com:berserkr/Nemotron.git
+cd Nemotron
+git checkout granite_v1
+cd ..
+
+# Make sure 3rdparty points to the right Megatron-LM branch:
+git clone --recursive git@github.com:berserkr/Megatron-LM.git
+git checkout super_cp2_fixes
+cd ..
+```
+
+### Set PYTHONPATH
+
+The container needs to find both repositories. Add to your launch script
+(before `srun`), or to your `run.env`:
+
+```bash
+export PYTHONPATH=/mnt/home/$USER/src/github.com/Megatron-Bridge/src:\
+/mnt/home/$USER/src/github.com/Megatron-Bridge/3rdparty/Megatron-LM:\
+/mnt/home/$USER/src/github.com/Nemotron/src:\
+${PYTHONPATH}
+```
+
+### Update Paths in Scripts
+
+All scripts and configs in this guide use placeholder paths. You **must**
+update the following to match your environment:
+
+| Placeholder | What to change |
+|------------|----------------|
+| `/mnt/home/$USER/src/github.com/Megatron-Bridge` | Your Megatron-Bridge clone path |
+| `/mnt/home/$USER/src/github.com/Nemotron` | Your Nemotron clone path |
+| `/mnt/vast/proj/checkpoints/$USER/...` | Your checkpoint/data storage paths |
+| `/mnt/vast/squash/nemo_sft_0331.sqsh` | Container image (shared, no change needed) |
+
+In SLURM scripts, update these specifically:
+
+```bash
+# Container image (use this exact path)
+container_image="/mnt/vast/squash/nemo_sft_0331.sqsh"
+
+# Working directory inside the container — point to YOUR Nemotron clone
+--container-workdir=/mnt/home/$USER/src/github.com/Nemotron
+
+# For conversion scripts, workdir should be YOUR Megatron-Bridge clone
+--container-workdir=/mnt/home/$USER/src/github.com/Megatron-Bridge
+```
+
+In training configs, update:
+
+```yaml
+recipe:
+    hf_model_path: /mnt/vast/proj/checkpoints/$USER/models/base/<your-base-model>
+
+dataset:
+    super3_packed_sft_dir: /mnt/vast/proj/checkpoints/$USER/datasets/sft/<your-packed-data>/splits
+
+checkpoint:
+    save: /mnt/vast/proj/checkpoints/$USER/models/nemo_run/<your-experiment>
+    load: /mnt/vast/proj/checkpoints/$USER/models/nemo_run/<your-experiment>
+```
+
+### Verify Setup
+
+Quick sanity check inside the container:
+
+```bash
+srun --nodes=1 --ntasks=1 --gpus-per-node=1 \
+    --container-image=/mnt/vast/squash/nemo_sft_0331.sqsh \
+    --container-mounts=/mnt:/mnt \
+    --container-workdir=/mnt/home/$USER/src/github.com/Nemotron \
+    bash -c "python -c 'import megatron.bridge; print(\"Megatron-Bridge OK\"); \
+             from nemotron.kit import print_step_complete; print(\"Nemotron OK\")'"
+```
 
 ---
 
