@@ -1,0 +1,56 @@
+# Granite MoE 3B SFT — 64k context, CP=4
+#
+# Hardware: 8 nodes x 4 GB200 = 32 GPUs
+# Parallelism: TP=1, PP=1, EP=8, CP=4, SP=False
+# GPUs/model: 1*1*8*4 = 32, DP replicas: 1
+# pad_seq_to_mult = TP * CP = 1 * 4 = 4
+
+recipe:
+  _target_: megatron.bridge.recipes.granite.granite_moe_3b.granite_moe_3b_finetune_config
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.0-3b-a800m-base
+  tensor_model_parallel_size: 1
+  pipeline_model_parallel_size: 1
+  expert_model_parallel_size: 8
+  context_parallelism: 1
+  sequence_parallelism: false
+  seq_length: 65536
+  micro_batch_size: 1
+  global_batch_size: 32
+  finetune_lr: 1.0e-6
+  lr_warmup_iters: 50
+  train_iters: 1000
+  packed_sequence: true
+
+# No recompute overrides — recipe uses selective
+#model:
+#  moe_aux_loss_coeff: 0.001
+#  moe_aux_loss_coeff: 0.01
+#  moe_router_load_balancing_type: "seq_aux_loss"
+#  moe_router_pre_softmax: true
+
+ddp:
+  use_distributed_optimizer: true
+
+dataset:
+  seq_length: 65536
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_moe3b_tok_64k_pad64/splits
+  packed_sequence_specs:
+    packed_sequence_size: 65536
+    pad_seq_to_mult: 1
+
+train:
+  train_iters: 1000
+  global_batch_size: 32
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_moe3b_sft_64k
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_moe3b_sft_64k
+  save_interval: 250
+  finetune: true
+  most_recent_k: 3
+
+logger:
+  log_interval: 1
+  wandb_project: "granite_moe3b_sft_64k"
+  wandb_exp_name: "granite_moe3b_sft_64k_ep8_cp4"
+  wandb_entity: "bathen"

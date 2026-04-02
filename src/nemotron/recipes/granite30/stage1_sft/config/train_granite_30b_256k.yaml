@@ -37,9 +37,13 @@
   checkpoint:
     save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_256k
     load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_sft_256k
-    save_interval: 100
-    finetune: false
-    most_recent_k: 3
+    save_interval: 500
+    finetune: true
+    #most_recent_k: 3
+    #non_persistent_ckpt_type: "local"
+    #non_persistent_save_interval: 100
+    #non_persistent_local_ckpt_dir: /tmp/granite30b_local_ckpt
+    #non_persistent_local_ckpt_algo: "fully_parallel"
 
   logger:
     log_interval: 1

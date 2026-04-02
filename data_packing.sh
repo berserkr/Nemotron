@@ -14,6 +14,8 @@ CFG=test_256k_granite30b_cp16.yaml
 CFG=test_256k_granite30b_cp32.yaml
 CFG=test_256k_granite30b_cp16_256mult.yaml
 CFG=test_512k_granite30b_cp32.yaml
+CFG=test_64k_granite_moe_3b_pad64.yaml
+CFG=test_40k_granite_moe_3b_pad256.yaml
 BASE_PATH=src/nemotron/recipes/super3/stage1_sft/config/data_prep
 python src/nemotron/recipes/super3/stage1_sft/data_prep.py --config ${BASE_PATH}/${CFG}
 

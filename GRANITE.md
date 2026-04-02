@@ -3,6 +3,8 @@
 End-to-end guide for setting up repositories, packing data, training with
 context parallelism, and exporting checkpoints back to HuggingFace format.
 
+Will need to update tokenizer from granite thinking chat template repo.
+
 **Cluster**: GB200 nodes, 4 GPUs per node (184 GB each)
 **Container**: `/mnt/vast/squash/nemo_sft_0331.sqsh`
 
@@ -24,7 +26,12 @@ git clone git@github.com:berserkr/Megatron-Bridge.git
 cd Megatron-Bridge
 git checkout granite_v1
 git submodule update --init --recursive   # pulls Megatron-LM under 3rdparty/
-cd ..
+cd Megatron-Bridge/3rdparty
+
+# Make sure 3rdparty points to the right Megatron-LM branch (delete if already there)
+git clone --recursive git@github.com:berserkr/Megatron-LM.git
+git checkout super_cp2_fixes
+cd ../..
 
 # Clone Nemotron
 git clone git@github.com:berserkr/Nemotron.git
@@ -32,10 +39,6 @@ cd Nemotron
 git checkout granite_v1
 cd ..
 
-# Make sure 3rdparty points to the right Megatron-LM branch:
-git clone --recursive git@github.com:berserkr/Megatron-LM.git
-git checkout super_cp2_fixes
-cd ..
 ```
 
 ### Set PYTHONPATH
@@ -252,7 +255,7 @@ dataset:
     super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_30b_tok_cp4/splits
     packed_sequence_specs:
         packed_sequence_size: 131072
-        pad_seq_to_mult: 16    # TP(4) x CP(4)
+        pad_seq_to_mult: 16    # TP(4) x CP(4) - must match padding in packing step
 
 train:
     train_iters: 2000
@@ -370,6 +373,34 @@ logger:
     wandb_project: "granite30b_sft_512k"
     wandb_exp_name: "granite30b_sft_512k_cp32"
     wandb_entity: "bathen"
+```
+
+All training scripts that worked so far are here:
+
+```bash
+-rw-rw-r-- 1 bathen bathen 5072 Mar 22 05:29 launch_qwen3_8b_256k_cp.sh
+-rw-rw---- 1 bathen bathen 5131 Mar 22 23:46 launch_super3_256k_cp.sh
+-rw-rw-r-- 1 bathen bathen 5072 Mar 25 21:50 launch_qwen3_8b_128k_cp.sh
+-rw-rw-r-- 1 bathen bathen 5069 Mar 27 04:04 launch_qwen3_8b_128k.sh
+-rw-rw---- 1 bathen bathen 5166 Mar 27 20:39 launch_granite_8b_4k.sh
+-rw-rw---- 1 bathen bathen 5168 Mar 27 21:02 launch_granite_8b_128k.sh
+-rw-rw---- 1 bathen bathen 5205 Mar 28 05:33 launch_granite_30b_128k.sh
+-rw-rw-r-- 1 bathen bathen 5389 Mar 31 15:43 launch_granite_30b_256k.sh
+-rw-rw-r-- 1 bathen bathen 5389 Mar 31 15:58 launch_granite_30b_512k.sh
+```
+
+All contain the individual configs used.
+
+Curves (30b bridge): 
+```
+https://wandb.vpc.res.ibm.com/bathen/granite30b_sft_128k/runs/scgcz8tr?nw=nwuserbathen
+
+```
+
+CP1 vs CP2:
+```
+https://wandb.vpc.res.ibm.com/bathen/full_sft_qwen3_8b_128k_validation/runs/qi9hmrgh?nw=nwuserbathen
+https://wandb.vpc.res.ibm.com/bathen/full_sft_qwen3_8b_128k_validation/runs/3jgfcr1t?nw=nwuserbathen
 ```
 
 ### Important Training Notes
