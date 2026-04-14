@@ -112,7 +112,6 @@ export DISTRIBUTED_ARGS=" \
     --master_port ${MASTER_PORT} \
     "
 
-# 8 nodes x 4 GPUs = 32 GPUs: TP=1, CP=1, DP=32
 CMD="CUDA_VISIBLE_DEVICES=0,1,2,3 CUDA_HOME=/usr/local/cuda-12 torchrun ${DISTRIBUTED_ARGS} src/nemotron/recipes/super3/stage1_sft/train.py --config src/nemotron/recipes/granite30/stage1_sft/config/train_granite_3b_128k_8n.yaml"
 
 echo "*********************** START ****************************"

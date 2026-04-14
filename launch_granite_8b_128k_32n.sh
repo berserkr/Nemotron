@@ -2,12 +2,12 @@
 #SBATCH --partition=hpc-mid
 #SBATCH --nodes=32
 #SBATCH --job-name=granite-8b-sft-128k-32n
-#SBATCH --ntasks-per-node=1  #<--must be 1 for torchrun / override for others like mpi
+#SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=4
 #SBATCH --cpus-per-task=144
 #SBATCH --output="/mnt/vast/proj/checkpoints/bathen/logs/nemotron-out.%j.log"
 #SBATCH --error="/mnt/vast/proj/checkpoints/bathen/logs/nemotron-err.%j.log"
-#SBATCH --open-mode=append    #<--- for a requeued job so it does not wipe out logs
+#SBATCH --open-mode=append
 #SBATCH --wait-all-nodes=1
 #SBATCH --mem=0
 #SBATCH --segment=2
@@ -31,7 +31,6 @@ export WANDB__SERVICE_WAIT=300
 : "${SLURM_RESTART_COUNT:=0}"
 MAX_SLURM_RESTART_COUNT=4
 
-#trap any exit and requeue if needed
 function cleanup {
     local exit_status=$?
     if [ "$exit_status" -ne 0 ]; then
@@ -48,11 +47,10 @@ function cleanup {
 
 trap cleanup EXIT
 
-##pre-flight NCCL Perf test on all GPUs
 if [ ${PREFLIGHT_TEST} -gt 0 ]; then
     set +e
     nccl_test="alltoall_perf"
-    echo -e "$(date) ${SLURM_JOBID} Pre Filght NCCL Test  ${nccl_test}"
+    echo -e "$(date) ${SLURM_JOBID} Pre Flight NCCL Test ${nccl_test}"
     srun --ntasks-per-node=1 --mpi=pmix /opt/nccl-tests/build/${nccl_test} -T 120 -b 1G -e 8G -f 2 -g 4
     rc=$?
     if [ $rc -ne 0 ]; then
@@ -106,13 +104,13 @@ export TORCH_CUDA_ARCH_LIST="Blackwell"
 export CUTE_ARCH_LDSM_SM100A_ENABLED=1
 export TRITON_ALLOW_NON_CONSTEXPR_GLOBALS=1
 export TORCHINDUCTOR_REORDER_FOR_PEAK_MEMORY=1
-
+export CUDA_DEVICE_MAX_CONNECTIONS=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 mkdir -p /tmp/$USER/triton
 export TRITON_HOME=/tmp/$USER/triton
 export TRITON_CACHE_DIR="${TRITON_HOME}/cache"
-ln -s /tmp/$USER/triton ~/.triton
+ln -sf /tmp/$USER/triton ~/.triton
 
 echo "Using nodes: $SLURM_JOB_NODELIST"
 
@@ -136,7 +134,6 @@ export DISTRIBUTED_ARGS=" \
     "
 echo $DISTRIBUTED_ARGS
 
-# 32 nodes x 4 GPUs = 128 GPUs: TP=4, CP=2, DP=16
 CMD="CUDA_VISIBLE_DEVICES=0,1,2,3 CUDA_HOME=/usr/local/cuda-12 torchrun ${DISTRIBUTED_ARGS} src/nemotron/recipes/super3/stage1_sft/train.py --config src/nemotron/recipes/granite30/stage1_sft/config/train_granite_8b_128k_32n.yaml"
 
 echo "*********************** START ****************************"
