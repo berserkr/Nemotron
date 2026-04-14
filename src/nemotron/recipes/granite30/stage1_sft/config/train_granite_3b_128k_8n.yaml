@@ -6,14 +6,14 @@
 
 recipe:
   _target_: megatron.bridge.recipes.granite.granite_3b.granite_3b_finetune_config
-  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-3b-instruct
-  tensor_model_parallel_size: 1
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-4.1-3b-base-special
+  tensor_model_parallel_size: 2
   pipeline_model_parallel_size: 1
   context_parallelism: 2
-  sequence_parallelism: false
+  sequence_parallelism: true
   seq_length: 131072
   micro_batch_size: 1
-  global_batch_size: 128
+  global_batch_size: 64
   finetune_lr: 5.0e-6
   lr_warmup_iters: 50
   train_iters: 1000
@@ -29,14 +29,14 @@ ddp:
 
 dataset:
   seq_length: 131072
-  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_3b_tok_128k/splits
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/math_128k_g41_3b_cp2/splits
   packed_sequence_specs:
     packed_sequence_size: 131072
-    pad_seq_to_mult: 2
+    pad_seq_to_mult: 4
 
 train:
   train_iters: 1000
-  global_batch_size: 128
+  global_batch_size: 64
 
 checkpoint:
   save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite3b_sft_128k

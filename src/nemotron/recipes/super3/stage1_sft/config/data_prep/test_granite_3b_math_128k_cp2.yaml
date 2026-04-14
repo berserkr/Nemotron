@@ -11,28 +11,29 @@ run:
 # Environment variables:
 #   PWD: Current working directory (for path resolution)
 
-# Path to data blend JSON file
-blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/datasets_config_128k.json
+# Path to data blend JON fileS
+blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/datasets_config_simple_granite.json
 
 # Output directory for packed Parquet data
-output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_moe3b_tok_128k_pad256_special
+output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/math_128k_g41_3b_cp2
 
 # Number of output shards for parallel loading
 num_shards: 128
 
 # Tokenizer configuration (nested)
 tokenizer:
-  model: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.0-3b-a800m-base-special
+  # TODO(super3): Replace with actual Super3 tokenizer model
+  model: /mnt/vast/proj/checkpoints/bathen/models/base/granite-4.1-3b-base-special
   add_bos: false
   add_eos: true
 
 # Maximum tokens per packed sequence
 pack_size: 131072
 
+pad_seq_to_mult: 4 # CP=2
+
 # Packing algorithm: 'first_fit_decreasing', 'first_fit_shuffle', 'concatenative'
 algorithm: first_fit_shuffle
-
-pad_seq_to_mult: 256 # future-proof for CP up to 256 with any TP
 
 # Packing seed (null = use sample_seed)
 seed: null

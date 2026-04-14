@@ -11,28 +11,27 @@ run:
 # Environment variables:
 #   PWD: Current working directory (for path resolution)
 
-# Path to data blend JSON file
-blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/datasets_config_128k.json
+# Path to data blend JON fileS
+blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/datasets_config_simple_granite.json
 
 # Output directory for packed Parquet data
-output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_moe3b_tok_128k_pad256_special
+output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/math_8k_cp2
 
 # Number of output shards for parallel loading
 num_shards: 128
 
 # Tokenizer configuration (nested)
 tokenizer:
-  model: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.0-3b-a800m-base-special
+  # TODO(super3): Replace with actual Super3 tokenizer model
+  model: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.0-3b-a800m-instruct
   add_bos: false
   add_eos: true
 
 # Maximum tokens per packed sequence
-pack_size: 131072
+pack_size: 8192
 
 # Packing algorithm: 'first_fit_decreasing', 'first_fit_shuffle', 'concatenative'
 algorithm: first_fit_shuffle
-
-pad_seq_to_mult: 256 # future-proof for CP up to 256 with any TP
 
 # Packing seed (null = use sample_seed)
 seed: null
@@ -49,7 +48,7 @@ valid_ratio: 0.01
 test_ratio: 0.01
 
 # Chat template: 'super3', path to .jinja file, or inline template
-chat_template: /mnt/home/bathen/src/github.com/Nemotron/chat_template.jinja
+chat_template: /mnt/home/bathen/src/github.com/Nemotron/chat_template_g30inst.jinja
 
 # Field name for OpenAI-format messages in input records
 messages_field: messages
@@ -78,6 +77,8 @@ force: false
 # Config name for artifact naming
 config_name: test
 
+pad_seq_to_mult: 4 # CP=2
+
 # =============================================================================
 # Stage Configs
 # =============================================================================
@@ -97,7 +98,7 @@ download:
 
 # Tokenization stage config
 tokenization:
-  cpus_per_worker: 4
+  cpus_per_worker: 16
 
 # =============================================================================
 # Pipeline Config

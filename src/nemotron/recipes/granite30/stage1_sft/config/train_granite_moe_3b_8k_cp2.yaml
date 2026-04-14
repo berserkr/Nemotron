@@ -1,0 +1,51 @@
+# Granite MoE 3B SFT — 8k context, ep=4
+
+recipe:
+  _target_: megatron.bridge.recipes.granite.granite_moe_3b.granite_moe_3b_finetune_config
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.0-3b-a800m-instruct
+  tensor_model_parallel_size: 1
+  pipeline_model_parallel_size: 1
+  expert_model_parallel_size: 2
+  context_parallelism: 2
+  sequence_parallelism: false
+  seq_length: 8192
+  micro_batch_size: 1
+  global_batch_size: 32
+  finetune_lr: 5.0e-6
+  lr_warmup_iters: 50
+  train_iters: 1000
+  packed_sequence: true
+
+# No recompute overrides — recipe uses selective
+#model:
+#  moe_aux_loss_coeff: 0.01          # 10x stronger load balancing
+#  moe_router_load_balancing_type: "seq_aux_loss"
+#  moe_router_pre_softmax: true
+#model:
+#  rotary_base: 1000000
+#  cross_entropy_loss_fusion: false 
+#  moe_expert_capacity_factor: 1.5
+#  moe_token_drop_policy: "probs"
+
+ddp:
+  use_distributed_optimizer: true
+  check_for_nan_in_grad: true
+dataset:
+  seq_length: 8192
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/math_8k_cp2/splits
+  packed_sequence_specs:
+    packed_sequence_size: 8192
+    pad_seq_to_mult: 4
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite-3.0-3b-a800m-instruct-math_8k_cp2
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite-3.0-3b-a800m-instruct-math_8k_cp2
+  save_interval: 100
+  finetune: true
+  most_recent_k: 3
+
+logger:
+  log_interval: 1
+  wandb_project: "granite_moe3b_sft_8k"
+  wandb_exp_name: "granite_moe3b_sft_8k_ep2_cp2"
+  wandb_entity: "bathen"

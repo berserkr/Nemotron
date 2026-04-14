@@ -15,14 +15,14 @@ run:
 blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/datasets_config_128k.json
 
 # Output directory for packed Parquet data
-output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_moe3b_tok_128k_pad256_special
+output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_8b_tok_128k_pad256_special
 
 # Number of output shards for parallel loading
 num_shards: 128
 
 # Tokenizer configuration (nested)
 tokenizer:
-  model: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.0-3b-a800m-base-special
+  model: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-8b-base-special
   add_bos: false
   add_eos: true
 

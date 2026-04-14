@@ -7,7 +7,7 @@
 
   recipe:
     _target_: megatron.bridge.recipes.granite.granite_8b.granite_8b_finetune_config
-    hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-8b-base
+    hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-8b-base-special
     #pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-8b-megatron
     tensor_model_parallel_size: 4
     pipeline_model_parallel_size: 1
@@ -31,7 +31,7 @@
 
   dataset:
     seq_length: 131072
-    super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_30b_tok_cp2/splits
+    super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_8b_tok_128k_pad256_special/splits
     packed_sequence_specs:
       packed_sequence_size: 131072
       pad_seq_to_mult: 4
@@ -41,8 +41,8 @@
     global_batch_size: 64
 
   checkpoint:
-    save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite8b_sft_128k
-    load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite8b_sft_128k
+    save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite8b_sft_128k_special
+    load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite8b_sft_128k_special
     save_interval: 100
     #pretrained_checkpoint: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-8b-megatron
     finetune: true
@@ -50,5 +50,5 @@
   logger:
     log_interval: 1
     wandb_project: "granite8b_sft_128k"
-    wandb_exp_name: "granite8b_sft_128k_cp2"
+    wandb_exp_name: "granite8b_sft_128k_cp2_special"
     wandb_entity: "bathen"

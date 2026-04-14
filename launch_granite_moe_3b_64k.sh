@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=hpc-mid
-#SBATCH --nodes=2
+#SBATCH --nodes=8
 #SBATCH --job-name=granite-nemotron-phase1
 #SBATCH --ntasks-per-node=1  #<--must be 1 for torchrun / override for others like mpi
 #SBATCH --gpus-per-node=4

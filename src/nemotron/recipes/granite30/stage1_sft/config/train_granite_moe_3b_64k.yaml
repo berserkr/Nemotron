@@ -10,14 +10,14 @@ recipe:
   hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.0-3b-a800m-base
   tensor_model_parallel_size: 1
   pipeline_model_parallel_size: 1
-  expert_model_parallel_size: 8
-  context_parallelism: 1
+  expert_model_parallel_size: 4
+  context_parallelism: 8
   sequence_parallelism: false
   seq_length: 65536
   micro_batch_size: 1
   global_batch_size: 32
-  finetune_lr: 1.0e-6
-  lr_warmup_iters: 50
+  finetune_lr: 2.0e-6
+  lr_warmup_iters: 100
   train_iters: 1000
   packed_sequence: true
 
@@ -27,16 +27,19 @@ recipe:
 #  moe_aux_loss_coeff: 0.01
 #  moe_router_load_balancing_type: "seq_aux_loss"
 #  moe_router_pre_softmax: true
+model:
+  rotary_base: 500000
 
 ddp:
   use_distributed_optimizer: true
+  check_for_nan_in_grad: false
 
 dataset:
   seq_length: 65536
   super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_moe3b_tok_64k_pad64/splits
   packed_sequence_specs:
     packed_sequence_size: 65536
-    pad_seq_to_mult: 1
+    pad_seq_to_mult: 64
 
 train:
   train_iters: 1000
