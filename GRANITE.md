@@ -1,12 +1,139 @@
-# Granite 30B Training Guide
+# Granite Training Guide
 
 End-to-end guide for setting up repositories, packing data, training with
 context parallelism, and exporting checkpoints back to HuggingFace format.
 
-Will need to update tokenizer from granite thinking chat template repo.
+Supports Granite 3B Dense, 8B Dense, MoE 3B, and 30B Dense models.
 
 **Cluster**: GB200 nodes, 4 GPUs per node (184 GB each)
-**Container**: `/mnt/vast/squash/nemo_sft_0331.sqsh`
+**Container**: `/mnt/vast/squash/nemo_sft_python312_v4.sqsh`
+
+---
+
+## Model Overview
+
+| Model | Arch | Params | Layers | Hidden | FFN | Heads | KV Heads | Experts | Vocab | rope_theta | Max Ctx |
+|-------|------|--------|--------|--------|-----|-------|----------|---------|-------|------------|---------|
+| Granite 3B Dense | GraniteForCausalLM | ~3B | 40 | 2560 | 8192 | 40 | 8 | - | 100352 | 10M | 128k |
+| Granite 8B Dense | GraniteForCausalLM | ~8B | 32 | 4096 | 14336 | 32 | 8 | - | 49152* | 10M | 128k |
+| Granite MoE 3B | GraniteMoeForCausalLM | ~3B (800M active) | 32 | 1536 | 512/expert | 24 | 8 | 40 (top-8) | 49152* | 10k** | 4k** |
+| Granite 30B Dense | GraniteForCausalLM | ~28.8B | 64 | 4096 | 32768 | 32 | 8 | - | 100352 | 50M | 512k |
+
+\* Granite 8B (3.1/3.3) has vocab=49159 (odd) — incompatible with TP=2. Use TP=1.
+\*\* MoE 3B base model needs `rotary_base: 500000` override for >40k context. Instruct model has rope_theta=10M.
+
+### Granite Multipliers (muP)
+
+All Granite models use muP-style scaling multipliers stored in the HF config. The bridge bakes these into weights during loading:
+
+| Multiplier | Dense 3B | Dense 8B | MoE 3B | Dense 30B | Applied to |
+|-----------|----------|----------|--------|-----------|------------|
+| embedding_multiplier | 12.0 | varies | 12.0 | varies | embed_tokens × multiplier |
+| residual_multiplier | 0.22 | varies | 0.22 | varies | o_proj, down_proj × multiplier |
+| logits_scaling | 10.0 | varies | 6.0 | varies | lm_head / scaling |
+| attention_multiplier | 0.015625 | varies | 0.015625 | varies | softmax_scale (NOT baked) |
+
+---
+
+## Validated Training Configurations
+
+| Model | TP | PP | EP | CP | Seq Len | Nodes | GPUs | Status |
+|-------|----|----|----|----|---------|-------|------|--------|
+| Granite 3B Dense | 1 | 1 | - | 1 | 128k | 1 | 4 | TP=1, DP=4 |
+| Granite 3B Dense | 1 | 1 | - | 2 | 256k | 1 | 4 | TP=1, CP=2, DP=2 |
+| Granite 8B Dense | 1 | 1 | - | 1 | 8k | 1 | 4 | TP=1, DP=4 |
+| Granite 8B Dense | 4 | 1 | - | 2 | 128k | 4 | 16 | TP=4, CP=2, DP=2 |
+| Granite 8B Dense | 2 | 1 | - | 4 | 256k | 4 | 16 | TP=2, CP=4, DP=2 |
+| Granite 8B Dense | 4 | 8 | - | 16 | 256k | 128 | 512 | stable |
+| Granite 8B Dense | 4 | 4 | - | 32 | 512k | 128 | 512 | stable |
+| MoE 3B instruct | 1 | 1 | 4 | 1 | 8k | 1 | 4 | loss 1.37→0.65 |
+| MoE 3B base | 1 | 1 | 8 | 4 | 128k | 8 | 32 | needs rotary_base=500000 |
+| Granite 30B Dense | 4 | 8 | - | 16 | 256k | 128 | 512 | stable |
+
+### Known Failures
+
+| Model | Config | Issue |
+|-------|--------|-------|
+| MoE 3B | TP=2 + vocab resize | loss=26 (bridge bug with non-original vocab + TP>1) |
+| MoE 3B | EP=2 + CP=2 | NaN step 1 (MoE + small EP + CP interaction) |
+| Granite 8B (3.1/3.3) | TP=2 | vocab=49159 (odd) — not divisible by TP=2 |
+
+### Key Lessons
+
+- **MoE + CP**: only works with larger EP (8+), fails with EP=2
+- **MoE + TP>1**: broken with non-original vocab size — use TP=1 or keep original vocab
+- **MoE base model >40k ctx**: needs `rotary_base: 500000` override (original 10k too low)
+- **Granite 8B (3.1/3.3)**: vocab=49159 (odd) — use TP=1 only
+- **Granite 3B Dense**: vocab=100352 — divisible by common TP sizes, no issues
+- **NVLink errors on GB200**: hardware issue, use pre-flight checks and `--exclude` bad nodes
+
+---
+
+## Model Paths, Configs & Launch Scripts
+
+### Base Models
+
+| Model | Path |
+|-------|------|
+| Granite 3B Dense (instruct) | `/mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-3b-instruct` |
+| Granite 8B Dense (instruct) | `/mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-8b-instruct` |
+| Granite 8B Dense (base) | `/mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-8b-base` |
+| Granite MoE 3B (instruct) | `/mnt/vast/proj/checkpoints/bathen/models/base/granite-3.0-3b-a800m-instruct` |
+| Granite MoE 3B (base) | `/mnt/vast/proj/checkpoints/bathen/models/base/granite-3.0-3b-a800m-base` |
+| Granite 30B Dense | `/mnt/vast/proj/checkpoints/bathen/models/base/30b-soft-lc-512k-lr1e-4-merged-3-7` |
+
+### Training Configs
+
+Located in `src/nemotron/recipes/granite30/stage1_sft/config/`:
+
+| Config File | Model | Seq Len | Nodes |
+|------------|-------|---------|-------|
+| `train_granite_3b_128k.yaml` | 3B Dense | 128k | 1 |
+| `train_granite_3b_256k.yaml` | 3B Dense | 256k | 1 |
+| `train_granite_8b_4k.yaml` | 8B Dense | 4k | 16 |
+| `train_granite_8b_128k.yaml` | 8B Dense | 128k | 16 |
+| `train_granite_8b_256k.yaml` | 8B Dense | 256k | 4 |
+| `train_granite_moe_3b_64k.yaml` | MoE 3B | 64k | 8 |
+| `train_granite_moe_3b_128k.yaml` | MoE 3B | 128k | 8 |
+| `train_granite_30b_128k.yaml` | 30B Dense | 128k | 64 |
+| `train_granite_30b_256k.yaml` | 30B Dense | 256k | 128 |
+| `train_granite_30b_512k.yaml` | 30B Dense | 512k | 256 |
+
+### Launch Scripts
+
+Located in the Nemotron root directory:
+
+| Script | Model | Seq Len | Nodes |
+|--------|-------|---------|-------|
+| `launch_granite_3b_128k.sh` | 3B Dense | 128k | 1 |
+| `launch_granite_8b_4k.sh` | 8B Dense | 4k | 16 |
+| `launch_granite_8b_128k.sh` | 8B Dense | 128k | 16 |
+| `launch_granite_moe_3b_64k.sh` | MoE 3B | 64k | 8 |
+| `launch_granite_moe_3b_128k.sh` | MoE 3B | 128k | 8 |
+| `launch_granite_30b_128k.sh` | 30B Dense | 128k | 64 |
+| `launch_granite_30b_256k.sh` | 30B Dense | 256k | 128 |
+| `launch_granite_30b_512k.sh` | 30B Dense | 512k | 256 |
+
+### Bridge Recipes
+
+Located in `Megatron-Bridge/src/megatron/bridge/recipes/granite/`:
+
+| Recipe | Model |
+|--------|-------|
+| `granite_3b.py` | Granite 3B Dense (`granite_3b_finetune_config`) |
+| `granite_8b.py` | Granite 8B Dense (`granite_8b_finetune_config`) |
+| `granite_moe_3b.py` | Granite MoE 3B (`granite_moe_3b_finetune_config`) |
+| `granite_30b.py` | Granite 30B Dense (`granite_30b_finetune_config`) |
+
+### Chat Templates
+
+Located in the Nemotron root directory:
+
+| Template | Format |
+|----------|--------|
+| `chat_template.jinja` | `<|im_start|>` / `<|im_end|>` format |
+| `chat_template_granite_instruct.jinja` | `<|start_of_role|>` / `<|end_of_role|>` / `<|end_of_text|>` format |
+| `chat_template_granite_full.jinja` | Full Granite instruct with tools, documents, citations, thinking |
 
 ---
 
