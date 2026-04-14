@@ -1,15 +1,15 @@
 # Granite 3B Dense SFT — 256k context, 8 nodes
 #
 # Hardware: 8 nodes x 4 GB200 = 32 GPUs
-# Parallelism: TP=2, PP=1, CP=8, SP=True
-# GPUs/model: 2*1*8 = 16, DP replicas: 2
+# Parallelism: TP=4, PP=1, CP=4, SP=True
+# GPUs/model: 4*1*4 = 16, DP replicas: 2
 
 recipe:
   _target_: megatron.bridge.recipes.granite.granite_3b.granite_3b_finetune_config
   hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-3b-instruct
-  tensor_model_parallel_size: 2
+  tensor_model_parallel_size: 4
   pipeline_model_parallel_size: 1
-  context_parallelism: 8
+  context_parallelism: 4
   sequence_parallelism: true
   seq_length: 262144
   micro_batch_size: 1
@@ -32,7 +32,7 @@ dataset:
   super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_3b_tok_256k/splits
   packed_sequence_specs:
     packed_sequence_size: 262144
-    pad_seq_to_mult: 16
+    pad_seq_to_mult: 8
 
 train:
   train_iters: 1000
@@ -48,5 +48,5 @@ checkpoint:
 logger:
   log_interval: 1
   wandb_project: "granite3b_sft_256k"
-  wandb_exp_name: "granite3b_sft_256k_tp2_cp8_dp2"
+  wandb_exp_name: "granite3b_sft_256k_tp4_cp4_dp2"
   wandb_entity: "bathen"
