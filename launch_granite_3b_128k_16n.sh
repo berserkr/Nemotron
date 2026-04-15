@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --partition=hpc-mid
-#SBATCH --nodes=8
-#SBATCH --job-name=granite-3b-sft-128k-8n
+#SBATCH --nodes=16
+#SBATCH --job-name=granite-3b-sft-128k-16n
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=4
 #SBATCH --cpus-per-task=144
@@ -112,8 +112,8 @@ export DISTRIBUTED_ARGS=" \
     --master_port ${MASTER_PORT} \
     "
 
-# 8 nodes x 4 GPUs = 32 GPUs: TP=2, CP=4, DP=4
-CMD="CUDA_VISIBLE_DEVICES=0,1,2,3 CUDA_HOME=/usr/local/cuda-12 torchrun ${DISTRIBUTED_ARGS} src/nemotron/recipes/super3/stage1_sft/train.py --config src/nemotron/recipes/granite30/stage1_sft/config/train_granite_3b_128k_8n.yaml"
+# 16 nodes x 4 GPUs = 64 GPUs: TP=2, CP=4, DP=8
+CMD="CUDA_VISIBLE_DEVICES=0,1,2,3 CUDA_HOME=/usr/local/cuda-12 torchrun ${DISTRIBUTED_ARGS} src/nemotron/recipes/super3/stage1_sft/train.py --config src/nemotron/recipes/granite30/stage1_sft/config/train_granite_3b_128k_16n.yaml"
 
 echo "*********************** START ****************************"
 echo $CMD
