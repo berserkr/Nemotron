@@ -39,30 +39,36 @@ SRUN_ARGS="--kill-on-bad-exit=1 \
             --no-container-remap-root \
             --container-workdir=/mnt/home/bathen/src/github.com/Nemotron"
 
-# ---------- Ray temp dir (shared across nodes via /tmp) ----------------------
-unique_dir=$(mktemp -d /tmp/ray_dataprep_XXXX)
-export RAY_TMPDIR=$unique_dir
-echo "$(date) Ray temp dir: $unique_dir"
+# ---------- Ray temp dir (on shared /tmp, visible across containers) ---------
+# Use a fixed path per job so all srun containers on the same node see it
+RAY_TMPDIR="/tmp/ray_dataprep_${SLURM_JOBID}"
+echo "$(date) Ray temp dir: $RAY_TMPDIR"
 
 # ---------- Discover nodes ---------------------------------------------------
 nodes=$(scontrol show hostnames "$SLURM_JOB_NODELIST")
 nodes_array=($nodes)
 head_node=${nodes_array[0]}
-export MASTER_PORT=6379
-ip_head="${head_node}:${MASTER_PORT}"
+MASTER_ADDR="$(scontrol show hostnames "${SLURM_JOB_NODELIST}" | head -n1)"
+MASTER_PORT=6379
+ip_head="${MASTER_ADDR}:${MASTER_PORT}"
 
 echo "$(date) Head node: $head_node"
+echo "$(date) MASTER_ADDR: $MASTER_ADDR"
+echo "$(date) ip_head: $ip_head"
 echo "$(date) All nodes: $nodes"
 
 # ---------- Start Ray head ---------------------------------------------------
 echo "$(date) Starting Ray HEAD on $head_node"
 srun ${SRUN_ARGS} --nodes=1 --ntasks=1 -w "$head_node" \
-    bash -c "ray stop --force 2>/dev/null; sleep 3; \
+    bash -c "mkdir -p ${RAY_TMPDIR} && \
+             ray stop --force 2>/dev/null; sleep 3; \
              ray start --head \
-                 --node-ip-address='$head_node' \
+                 --node-ip-address='$MASTER_ADDR' \
                  --port=$MASTER_PORT \
                  --num-cpus=${SLURM_CPUS_PER_TASK} \
-                 --temp-dir '$unique_dir' \
+                 --temp-dir '${RAY_TMPDIR}' \
+                 --include-dashboard=True \
+                 --dashboard-host=0.0.0.0 \
                  --block" &
 
 echo "$(date) Waiting 15s for Ray head to initialize..."
@@ -74,11 +80,12 @@ for ((i = 1; i <= worker_num; i++)); do
     node_i=${nodes_array[$i]}
     echo "$(date) Starting Ray WORKER $i on $node_i"
     srun ${SRUN_ARGS} --nodes=1 --ntasks=1 -w "$node_i" \
-        bash -c "ray stop --force 2>/dev/null; sleep 3; \
+        bash -c "mkdir -p ${RAY_TMPDIR} && \
+                 ray stop --force 2>/dev/null; sleep 3; \
                  ray start \
                      --address '$ip_head' \
                      --num-cpus=${SLURM_CPUS_PER_TASK} \
-                     --temp-dir '$unique_dir' \
+                     --temp-dir '${RAY_TMPDIR}' \
                      --block" &
     sleep 6
 done
@@ -89,7 +96,9 @@ sleep 10
 # ---------- Run data prep on head node ---------------------------------------
 echo "$(date) Starting data prep pipeline: ${CFG}"
 srun --overlap -w "$head_node" --ntasks=1 --nodes=1 ${SRUN_ARGS} \
-    bash -c "export RAY_ADDRESS='${ip_head}'; \
+    bash -c "export RAY_ADDRESS='${MASTER_ADDR}:6379'; \
+             export RAY_TMPDIR='${RAY_TMPDIR}'; \
+             ray status; \
              python src/nemotron/recipes/super3/stage1_sft/data_prep.py \
                  --config ${BASE_PATH}/${CFG}"
 
