@@ -453,8 +453,12 @@ class WandbStatsHook:
         hook = self  # Capture self for the wrapper
 
         def wrapper(monitor_self: Any, input_len: int, ext_output_lens: list[int], task_metadata_per_pool: list) -> Any:
-            # Call original _make_stats
-            stats = original(monitor_self, input_len, ext_output_lens, task_metadata_per_pool)
+            # Call original _make_stats (may fail if Ray dashboard is unavailable)
+            try:
+                stats = original(monitor_self, input_len, ext_output_lens, task_metadata_per_pool)
+            except Exception as e:
+                logger.warning(f"Error in _make_stats (Ray dashboard may be unavailable): {e}")
+                return None
 
             # Log to all active hooks
             for active_hook in _active_hooks:
