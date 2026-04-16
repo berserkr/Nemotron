@@ -40,7 +40,6 @@ SRUN_ARGS="--kill-on-bad-exit=1 \
             --container-workdir=/mnt/home/bathen/src/github.com/Nemotron"
 
 # ---------- Ray temp dir (on shared /tmp, visible across containers) ---------
-# Use a fixed path per job so all srun containers on the same node see it
 RAY_TMPDIR="/tmp/ray_dataprep_${SLURM_JOBID}"
 echo "$(date) Ray temp dir: $RAY_TMPDIR"
 
@@ -57,24 +56,7 @@ echo "$(date) MASTER_ADDR: $MASTER_ADDR"
 echo "$(date) ip_head: $ip_head"
 echo "$(date) All nodes: $nodes"
 
-# ---------- Start Ray head ---------------------------------------------------
-echo "$(date) Starting Ray HEAD on $head_node"
-srun ${SRUN_ARGS} --nodes=1 --ntasks=1 -w "$head_node" \
-    bash -c "mkdir -p ${RAY_TMPDIR} && \
-             ray stop --force 2>/dev/null; sleep 3; \
-             ray start --head \
-                 --node-ip-address='$MASTER_ADDR' \
-                 --port=$MASTER_PORT \
-                 --num-cpus=${SLURM_CPUS_PER_TASK} \
-                 --temp-dir '${RAY_TMPDIR}' \
-                 --include-dashboard=True \
-                 --dashboard-host=0.0.0.0 \
-                 --block" &
-
-echo "$(date) Waiting 15s for Ray head to initialize..."
-sleep 15
-
-# ---------- Start Ray workers ------------------------------------------------
+# ---------- Start Ray workers (background, before head) ---------------------
 worker_num=$((SLURM_JOB_NUM_NODES - 1))
 for ((i = 1; i <= worker_num; i++)); do
     node_i=${nodes_array[$i]}
@@ -90,17 +72,30 @@ for ((i = 1; i <= worker_num; i++)); do
     sleep 6
 done
 
-echo "$(date) Waiting 10s for all workers to join..."
-sleep 10
-
-# ---------- Run data prep on head node ---------------------------------------
-echo "$(date) Starting data prep pipeline: ${CFG}"
-srun --overlap -w "$head_node" --ntasks=1 --nodes=1 ${SRUN_ARGS} \
-    bash -c "export RAY_ADDRESS='${MASTER_ADDR}:6379'; \
-             export RAY_TMPDIR='${RAY_TMPDIR}'; \
+# ---------- Start Ray head + run data prep (same container) ------------------
+# Running data prep in the same container as the Ray head so the dashboard
+# is accessible on localhost:8265 (cosmos_xenna monitoring needs it).
+echo "$(date) Starting Ray HEAD + data prep on $head_node"
+srun ${SRUN_ARGS} --nodes=1 --ntasks=1 -w "$head_node" \
+    bash -c "mkdir -p ${RAY_TMPDIR} && \
+             ray stop --force 2>/dev/null; sleep 3; \
+             ray start --head \
+                 --node-ip-address='$MASTER_ADDR' \
+                 --port=$MASTER_PORT \
+                 --num-cpus=${SLURM_CPUS_PER_TASK} \
+                 --temp-dir '${RAY_TMPDIR}' \
+                 --include-dashboard=True \
+                 --dashboard-host=0.0.0.0; \
+             sleep 15; \
+             echo 'Ray cluster status:'; \
              ray status; \
+             echo 'Starting data prep pipeline...'; \
              python src/nemotron/recipes/super3/stage1_sft/data_prep.py \
-                 --config ${BASE_PATH}/${CFG}"
+                 --config ${BASE_PATH}/${CFG}; \
+             rc=\$?; \
+             echo '=== Ray dashboard log ==='; \
+             cat ${RAY_TMPDIR}/session_latest/logs/dashboard.log 2>/dev/null || echo 'No dashboard log found'; \
+             exit \$rc"
 
 rc=$?
 echo "$(date) Data prep finished with rc=$rc"
