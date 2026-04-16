@@ -1,0 +1,58 @@
+# Granite MoE 20B SFT — 256k context
+#
+# Architecture: 40 layers, hidden=2048, ffn=1536/expert, 32 heads, 8 KV heads
+#               56 experts, top-4 routing, ~20B total, ~2.1B active/token
+#
+# Hardware: 32 nodes x 4 GB200 = 128 GPUs
+# Parallelism: TP=2, PP=1, EP=8, CP=8, SP=True
+# GPUs/model: 2*1*8*8 = 128, DP replicas: 1
+# pad_seq_to_mult = TP * CP = 16
+
+recipe:
+  _target_: megatron.bridge.recipes.granite.granite_moe_20b.granite_moe_20b_finetune_config
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-moe-20b-256k  # POST-CPT
+  tensor_model_parallel_size: 2
+  pipeline_model_parallel_size: 1
+  expert_model_parallel_size: 8
+  context_parallelism: 8
+  sequence_parallelism: true
+  seq_length: 262144
+  micro_batch_size: 1
+  global_batch_size: 32
+  finetune_lr: 1.0e-6
+  lr_warmup_iters: 100
+  train_iters: 2000
+  packed_sequence: true
+
+model:
+  cross_entropy_loss_fusion: false
+
+ddp:
+  use_distributed_optimizer: true
+  check_for_nan_in_grad: true
+
+dataset:
+  seq_length: 262144
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite_moe20b_tok_256k/splits
+  packed_sequence_specs:
+    packed_sequence_size: 262144
+    pad_seq_to_mult: 16
+
+train:
+  train_iters: 2000
+  global_batch_size: 32
+
+validation:
+  eval_interval: 5000
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_moe20b_sft_256k
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_moe20b_sft_256k
+  save_interval: 250
+  finetune: true
+
+logger:
+  log_interval: 1
+  wandb_project: "granite_moe20b_sft_256k"
+  wandb_exp_name: "granite_moe20b_sft_256k_ep8_cp8"
+  wandb_entity: "bathen"
