@@ -131,19 +131,24 @@ from nemotron.kit import wandb_kit
 logger = logging.getLogger(__name__)
 
 # Workaround: cosmos_xenna monitoring crashes when the Ray dashboard returns
-# HTTP 500 for high-limit actor queries (limit=40000) on multi-node Slurm.
-# _make_stats sets stats.pipeline = None, then _update_ray_metrics blindly
-# iterates stats.actor_pools → AttributeError.  Guard against None here.
-_orig_update_ray_metrics = PipelineMonitor._update_ray_metrics
+# HTTP 500 for the high-limit actor query (limit=40000) on multi-node Slurm.
+# _make_stats returns stats with pipeline=None, and update() accesses
+# stats.pipeline.cluster.actors / _update_ray_metrics(stats.pipeline) without
+# guarding.  Patch update() to tolerate None pipeline stats.
+_orig_monitor_update = PipelineMonitor.update
 
 
-def _safe_update_ray_metrics(self, stats):  # type: ignore[override]
-    if stats is None:
-        return
-    return _orig_update_ray_metrics(self, stats)
+def _safe_monitor_update(self, *args, **kwargs):
+    try:
+        return _orig_monitor_update(self, *args, **kwargs)
+    except AttributeError as e:
+        if "'NoneType'" in str(e):
+            logger.warning("Skipping monitor update (Ray dashboard stats unavailable): %s", e)
+            return False
+        raise
 
 
-PipelineMonitor._update_ray_metrics = _safe_update_ray_metrics
+PipelineMonitor.update = _safe_monitor_update
 
 STAGE_PATH = Path(__file__).parent
 

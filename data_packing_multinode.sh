@@ -39,6 +39,10 @@ SRUN_ARGS="--kill-on-bad-exit=1 \
             --no-container-remap-root \
             --container-workdir=/mnt/home/bathen/src/github.com/Nemotron"
 
+# ---------- Ray state API limits (match ray_cpu.sub.j2 template) -------------
+export RAY_MAX_LIMIT_FROM_API_SERVER=40000
+export RAY_MAX_LIMIT_FROM_DATA_SOURCE=40000
+
 # ---------- Ray temp dir (on shared /tmp, visible across containers) ---------
 RAY_TMPDIR="/tmp/ray_dataprep_${SLURM_JOBID}"
 echo "$(date) Ray temp dir: $RAY_TMPDIR"
