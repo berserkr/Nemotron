@@ -96,6 +96,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import cosmos_xenna.pipelines.v1 as pipelines_v1
+from cosmos_xenna.pipelines.private.monitoring import PipelineMonitor
 
 from nemotron.data_prep.blend import DataBlend
 from nemotron.data_prep.config import ObservabilityConfig, TokenizerConfig
@@ -128,6 +129,21 @@ from nemotron.kit.train_script import (
 from nemotron.kit import wandb_kit
 
 logger = logging.getLogger(__name__)
+
+# Workaround: cosmos_xenna monitoring crashes when the Ray dashboard returns
+# HTTP 500 for high-limit actor queries (limit=40000) on multi-node Slurm.
+# _make_stats sets stats.pipeline = None, then _update_ray_metrics blindly
+# iterates stats.actor_pools → AttributeError.  Guard against None here.
+_orig_update_ray_metrics = PipelineMonitor._update_ray_metrics
+
+
+def _safe_update_ray_metrics(self, stats):  # type: ignore[override]
+    if stats is None:
+        return
+    return _orig_update_ray_metrics(self, stats)
+
+
+PipelineMonitor._update_ray_metrics = _safe_update_ray_metrics
 
 STAGE_PATH = Path(__file__).parent
 
