@@ -1,0 +1,8 @@
+import pyarrow.parquet as pq                                                                                                                                                                                                                                                                
+from pathlib import Path                                                                                                                                                                                                                                                                    
+  
+train_dir = Path('/mnt/vast/proj/checkpoints/bathen/datasets/sft/blend_sampling_15m_balanced_256pad_uniform/splits/train')                                                                                                                                                                   
+total_rows = sum(pq.read_metadata(f).num_rows for f in train_dir.glob('*.parquet'))                                                                                                                                                                                                         
+print(f'Total packed sequences: {total_rows}')                                                                                                                                                                                                                                              
+print(f'Iters per epoch (GBS=128): {total_rows // 128}')                                                                                                                                                                                                                                    
+print(f'2 epochs: {2 * (total_rows // 128)}')     

@@ -323,7 +323,7 @@ def discover_filesystem_files(
         all_files = fs.listdir(path, detail=False)
         file_paths = sorted(
             [
-                f"{path.rstrip('/')}/{f}" if isinstance(f, str) else f["name"]
+                f if isinstance(f, str) else f["name"]
                 for f in all_files
                 if (isinstance(f, str) and f.endswith((".parquet", ".jsonl", ".json")))
                 or (

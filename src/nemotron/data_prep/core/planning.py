@@ -141,13 +141,14 @@ def _redistribute_with_row_splitting(
         for j in range(remaining):
             floor_shares[fractional_parts[j][1]] += 1
     elif remaining < 0:
-        # Over-allocated due to max(1,...) floors — trim from smallest files
-        fractional_parts = [(raw_shares[i] - floor_shares[i], i) for i in range(len(sorted_files))]
-        fractional_parts.sort(key=lambda x: (x[0], x[1]))
-        for j in range(-remaining):
-            idx = fractional_parts[j][1]
-            if floor_shares[idx] > 1:
-                floor_shares[idx] -= 1
+        # Over-allocated due to max(1,...) floors — trim from files with most shards
+        deficit = -remaining
+        while deficit > 0:
+            max_idx = max(range(len(floor_shares)), key=lambda i: floor_shares[i])
+            if floor_shares[max_idx] <= 1:
+                break
+            floor_shares[max_idx] -= 1
+            deficit -= 1
 
     shard_cursor = 0
     for file_idx, f in enumerate(sorted_files):

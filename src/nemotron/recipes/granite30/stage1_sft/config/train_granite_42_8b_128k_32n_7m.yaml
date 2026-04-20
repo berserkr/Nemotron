@@ -1,0 +1,53 @@
+# Granite 8B SFT — 128k context, 32 nodes
+#
+# Hardware: 32 nodes x 4 GB200 = 128 GPUs
+# Parallelism: TP=4, PP=1, CP=2, SP=True
+# GPUs/model: 4*1*2 = 8, DP replicas: 16
+# pad_seq_to_mult = CP * 2 = 4
+
+recipe:
+  _target_: megatron.bridge.recipes.granite.granite_8b.granite_8b_finetune_config
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-4.1-8b-base-special
+  tensor_model_parallel_size: 4
+  pipeline_model_parallel_size: 1
+  context_parallelism: 2
+  sequence_parallelism: true
+  seq_length: 131072
+  micro_batch_size: 1
+  global_batch_size: 128
+  finetune_lr: 1.0e-5
+  lr_warmup_iters: 20
+  train_iters: 376
+  packed_sequence: true
+
+#model:
+#  recompute_granularity: "full"
+#  recompute_method: "block"
+#  recompute_num_layers: 1
+
+ddp:
+  use_distributed_optimizer: true
+
+dataset:
+  seq_length: 131072
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/blend_sampling_7m_balanced_256pad_uniform/splits
+  packed_sequence_specs:
+    packed_sequence_size: 131072
+    pad_seq_to_mult: 4
+
+train:
+  train_iters: 376
+  global_batch_size: 128
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_42_8b_sft_128k_7m
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_42_8b_sft_128k_7m
+  save_interval: 100
+  finetune: true
+  #most_recent_k: 3
+
+logger:
+  log_interval: 1
+  wandb_project: "granite_42_8b_sft_128k"
+  wandb_exp_name: "blend_sampling_7m_balanced_256pad"
+  wandb_entity: "ai-models"

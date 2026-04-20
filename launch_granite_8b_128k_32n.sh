@@ -137,7 +137,7 @@ export DISTRIBUTED_ARGS=" \
 echo $DISTRIBUTED_ARGS
 
 # 32 nodes x 4 GPUs = 128 GPUs: TP=4, CP=2, DP=16
-CMD="CUDA_VISIBLE_DEVICES=0,1,2,3 CUDA_HOME=/usr/local/cuda-12 torchrun ${DISTRIBUTED_ARGS} src/nemotron/recipes/super3/stage1_sft/train.py --config src/nemotron/recipes/granite30/stage1_sft/config/train_granite_8b_128k_32n.yaml"
+CMD="CUDA_VISIBLE_DEVICES=0,1,2,3 CUDA_HOME=/usr/local/cuda-12 torchrun ${DISTRIBUTED_ARGS} src/nemotron/recipes/super3/stage1_sft/train.py --config src/nemotron/recipes/granite30/stage1_sft/config/train_granite_42_8b_128k_32n_15m.yaml"
 
 echo "*********************** START ****************************"
 echo $CMD

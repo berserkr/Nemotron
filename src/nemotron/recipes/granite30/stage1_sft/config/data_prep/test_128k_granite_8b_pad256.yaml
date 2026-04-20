@@ -1,0 +1,133 @@
+run:
+  env:
+    container: null
+
+# Default config for SFT data preparation
+#
+# Usage:
+#   nemotron super3 data prep sft
+#   nemotron super3 data prep sft sample=100 force=true
+#
+# Environment variables:
+#   PWD: Current working directory (for path resolution)
+
+# Path to data blend JSON file
+blend_path: /mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/blends/blend_sampling_7m_balanced.json
+
+# Output directory for packed Parquet data
+# The tradeoff is token waste vs retokenization flexibility.                                                                                                                                                                                                                                                                                                                                                                                                                                 
+#                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#  What CP actually needs: sequence length divisible by CP * 2. So CP=2 needs multiples of 4, CP=4 needs multiples of 8.                                                                                                                                                                                                                                                                                                                                                                      
+#                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#  pad=256 gives you: compatibility with any CP up to 128 (since 256 = 128×2) from a single tokenization run. You tokenize once and can train with CP=2, 4, 8, 16, 32, 64, 128 without repacking.                                                                                                                                                                                                                                                                                             
+#                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#  The cost is wasted padding tokens per packed sequence (up to pad_mult - 1 tokens):                                                                                                                                                                                                                                                                                                                                                                                                         
+#                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#  ┌──────────┬───────────────┬───────────────────┬─────────────────┐                                                                                                                                                                                                                                                                                                                                                                                                                         
+#  │ pad_mult │ Max waste/seq │ At pack_size=128K │ At pack_size=8K │                                                                                                                                                                                                                                                                                                                                                                                                                         
+#  ├──────────┼───────────────┼───────────────────┼─────────────────┤                                                                                                                                                                                                                                                                                                                                                                                                                         
+#  │ 4 (CP=2) │ 3 tokens      │ 0.002%            │ 0.04%           │
+#  ├──────────┼───────────────┼───────────────────┼─────────────────┤
+#  │ 8 (CP=4) │ 7 tokens      │ 0.005%            │ 0.09%           │                                                                                                                                                                                                                                                                                                                                                                                                                         
+#  ├──────────┼───────────────┼───────────────────┼─────────────────┤                                                                                                                                                                                                                                                                                                                                                                                                                         
+#  │ 256      │ 255 tokens    │ 0.19%             │ 3.1%            │                                                                                                                                                                                                                                                                                                                                                                                                                         
+#  └──────────┴───────────────┴───────────────────┴─────────────────┘                                                                                                                                                                                                                                                                                                                                                                                                                         
+#                  
+#  At 128K pack size, pad=256 wastes ~0.19% — negligible. You won't notice it in training loss or throughput.                                                                                                                                                                                                                                                                                                                                                                                 
+#                  
+#  At 8K pack size, pad=256 wastes up to ~3.1% — starts to matter. You're throwing away real training signal, and packing efficiency drops because bins that could have fit one more short document now can't.                                                                                                                                                                                                                                                                                
+#                  
+#  Bottom line: If your pack sizes are 64K+, just use 256 and never retokenize. If you're packing at 8K, use the tighter pad value for your specific CP to avoid meaningful waste. 
+
+output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/blend_sampling_7m_balanced_256pad
+
+# Number of output shards for parallel loading
+num_shards: 128
+
+# Tokenizer configuration (nested)
+tokenizer:
+  model: /mnt/vast/proj/checkpoints/bathen/models/base/granite-4.1-8b-base-special
+  add_bos: false
+  add_eos: true
+
+# Maximum tokens per packed sequence
+pack_size: 131072
+
+# Packing algorithm: 'first_fit_decreasing', 'first_fit_shuffle', 'concatenative'
+algorithm: first_fit_shuffle
+
+pad_seq_to_mult: 256 # future-proof for CP up to 256 with any TP
+
+# Packing seed (null = use sample_seed)
+seed: null
+
+# Parquet row group size (bins per group)
+parquet_row_group_size: 1000
+
+# Parquet compression codec: 'zstd', 'snappy', 'gzip', 'none'
+parquet_compression: zstd
+
+# Split ratios (must sum to 1.0)
+train_ratio: 0.98
+valid_ratio: 0.01
+test_ratio: 0.01
+
+# Chat template: 'super3', path to .jinja file, or inline template
+chat_template: /mnt/home/bathen/src/github.com/Nemotron/chat_template.jinja
+
+# Field name for OpenAI-format messages in input records
+messages_field: messages
+
+# Field name for tools definition in input records
+tools_field: tools
+
+# Filter to only include records where used_in contains this value
+used_in_filter: null
+
+# Field name for used_in filtering
+used_in_field: null
+
+# Truncate sequences longer than this (null = no limit)
+max_doc_tokens: 130816  # pack_size - pad_seq_to_mult (131072 - 256) 
+
+# Limit rows per dataset for quick tests (null = no limit)
+sample: null
+
+# Random seed for sampling
+sample_seed: 42
+
+# Force new run, ignoring cache
+force: false
+
+# Config name for artifact naming
+config_name: granite42_7m_balanced_128k_pad256
+
+# =============================================================================
+# Stage Configs
+# =============================================================================
+
+# Planning stage config
+plan:
+  planner_cpus: 0.5
+
+# Download stage config
+download:
+  batch_size: 1
+  stage_cpus: 0.5
+  hf_xet_high_performance: true
+  hf_xet_concurrent_range_gets: 32
+  max_retries: 3
+  timeout_sec: 300
+
+# Tokenization stage config
+tokenization:
+  cpus_per_worker: 4
+
+# =============================================================================
+# Pipeline Config
+# =============================================================================
+
+# Pipeline observability settings
+observability:
+  pipeline_logging_interval_s: 30
+  wandb_log_pipeline_stats: true
