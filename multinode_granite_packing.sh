@@ -5,8 +5,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=0
 #SBATCH --cpus-per-task=144
-#SBATCH --output="/mnt/vast/proj/checkpoints/bathen/logs/granite-pack-out.%j.log"
-#SBATCH --error="/mnt/vast/proj/checkpoints/bathen/logs/granite-pack-err.%j.log"
+#SBATCH --output="/mnt/ss/proj/checkpoints/bathen/logs/granite-pack-out.%j.log"
+#SBATCH --error="/mnt/ss/proj/checkpoints/bathen/logs/granite-pack-err.%j.log"
 #SBATCH --wait-all-nodes=1
 #SBATCH --mem=0
 
@@ -36,8 +36,8 @@ echo "$(date) Config: ${CFG}"
 echo "$(date) Nodes: ${SLURM_NNODES} x ${SLURM_CPUS_PER_TASK} CPUs = $((SLURM_NNODES * SLURM_CPUS_PER_TASK)) total CPUs"
 
 # ---------- Container --------------------------------------------------------
-container_image="/mnt/vast/squash/nemo_sft_python312_v4.sqsh"
-container_mounts="/mnt:/mnt,/tmp:/tmp"
+container_image="/mnt/ss/squash/nemo_sft_0430.sqsh"
+container_mounts="/mnt/ss:/mnt/vast,/tmp:/tmp"
 
 SRUN_ARGS="--kill-on-bad-exit=1 \
             --container-image=${container_image} \
