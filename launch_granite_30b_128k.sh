@@ -145,7 +145,8 @@ export DISTRIBUTED_ARGS=" \
 echo $DISTRIBUTED_ARGS
 
 # --- THE FINAL STRIKE: NEMOTRON EXECUTION ---
-CMD="CUDA_VISIBLE_DEVICES=0,1,2,3 CUDA_HOME=/usr/local/cuda-12 torchrun ${DISTRIBUTED_ARGS} src/nemotron/recipes/super3/stage1_sft/train.py --config src/nemotron/recipes/granite30/stage1_sft/config/train_granite_30b_128k.yaml"
+CFG=src/nemotron/recipes/granite30/stage1_sft/config/train_granite_30b_128k_7m_stratified.yaml
+CMD="CUDA_VISIBLE_DEVICES=0,1,2,3 CUDA_HOME=/usr/local/cuda-12 torchrun ${DISTRIBUTED_ARGS} src/nemotron/recipes/super3/stage1_sft/train.py --config ${CFG}"
 
 echo "*********************** START ****************************"
 echo $CMD

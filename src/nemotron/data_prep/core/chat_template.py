@@ -32,6 +32,17 @@ if TYPE_CHECKING:
     from transformers import PreTrainedTokenizerBase
 
 
+def _has_nonempty_reasoning(msg: dict) -> bool:
+    """Match the Jinja template's check for non-empty reasoning_content.
+
+    The Jinja template considers reasoning_content present only when:
+      message.reasoning_content is defined AND is string AND trim | length > 0
+    This rejects None, non-string types, empty strings, and whitespace-only.
+    """
+    rc = msg.get("reasoning_content")
+    return isinstance(rc, str) and len(rc.strip()) > 0
+
+
 def replace_json_args(messages: list[dict]) -> list[dict]:
     """Convert JSON string arguments to dict objects in tool calls.
 
@@ -85,11 +96,13 @@ def find_last_user_message_end(
     # Find the last user message index
     last_user_idx = max(i for i, msg in enumerate(messages) if msg["role"] == "user")
 
+    next_msg_idx = last_user_idx + 1
+    next_has_reasoning = (
+        next_msg_idx < len(messages) and _has_nonempty_reasoning(messages[next_msg_idx])
+    )
+
     # Render up to the last user message (inclusive)
-    if enable_thinking and (
-        "reasoning_content" not in messages[last_user_idx + 1]
-        or messages[last_user_idx + 1]["reasoning_content"] == ""
-    ):
+    if enable_thinking and not next_has_reasoning:
         # Manual hack for empty reasoning content mismatch
         template_up_to_last_user = tokenizer.apply_chat_template(
             messages[: last_user_idx + 1],
@@ -182,10 +195,7 @@ def split_template_into_messages(
             enable_thinking
             and messages[i]["role"] != "assistant"
             and i + 1 < len(messages)
-            and (
-                "reasoning_content" not in messages[i + 1]
-                or messages[i + 1]["reasoning_content"] == ""
-            )
+            and not _has_nonempty_reasoning(messages[i + 1])
         ):
             # Manual hack for empty reasoning content mismatch
             template_up_to_here = tokenizer.apply_chat_template(
@@ -213,7 +223,11 @@ def split_template_into_messages(
         # Verify incremental rendering matches full template
         if template_up_to_here != full_template[:current_pos]:
             raise ValueError(
-                f"Template mismatch at message {i}: incremental rendering doesn't match full"
+                f"Template mismatch at message {i}: incremental rendering doesn't match full.\n"
+                f"  INC[{current_pos-40}:{current_pos}]: {repr(template_up_to_here[-40:])}\n"
+                f"  FULL[{current_pos-40}:{current_pos}]: {repr(full_template[current_pos-40:current_pos])}\n"
+                f"  msg_role={messages[i]['role']} next_role={messages[i+1]['role'] if i+1<len(messages) else 'END'}\n"
+                f"  next_has_reasoning={_has_nonempty_reasoning(messages[i+1]) if i+1<len(messages) else 'N/A'}"
             )
 
         result.append({"role": messages[i]["role"], "content": chunk_text})
@@ -246,7 +260,11 @@ def create_masked_messages(
         Exact port of materialize.py::create_masked_messages()
     """
     # Check if conversation has thinking (determines splitting strategy)
-    has_thinking = any("reasoning_content" in msg and msg["reasoning_content"] for msg in messages)
+    has_thinking = any(
+        _has_nonempty_reasoning(msg)
+        for msg in messages
+        if msg.get("role") == "assistant"
+    )
 
     if has_thinking:
         # Split based on user messages - create chunks up to each user message

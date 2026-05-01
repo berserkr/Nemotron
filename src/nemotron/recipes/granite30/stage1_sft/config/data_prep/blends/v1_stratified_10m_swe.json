@@ -1,0 +1,25 @@
+{
+  "datasets": [
+    {"name": "agent_data_collection", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/agent_data_collection/sampled.jsonl"},
+    {"name": "agent_trajectories", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/agent_trajectories/sampled.jsonl"},
+    {"name": "agentic_programming", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/agentic_programming/sampled.jsonl"},
+    {"name": "code", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/code/sampled.jsonl"},
+    {"name": "cuda", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/cuda/sampled.jsonl"},
+    {"name": "financial_reasoning", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/financial_reasoning/sampled.jsonl"},
+    {"name": "formal_proofs", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/formal_proofs/sampled.jsonl"},
+    {"name": "infinibyte", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/infinibyte/sampled.jsonl"},
+    {"name": "instruction_following_chat", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/instruction_following_chat/sampled.jsonl"},
+    {"name": "interactive_agent_customer_service", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/interactive_agent_customer_service/sampled.jsonl"},
+    {"name": "low_effort_reasoning", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/low_effort_reasoning/sampled.jsonl"},
+    {"name": "math_w_tools", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/math_w_tools/sampled.jsonl"},
+    {"name": "math_wo_tools", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/math_wo_tools/sampled.jsonl"},
+    {"name": "multilingual", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/multilingual/sampled.jsonl"},
+    {"name": "safety", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/safety/sampled.jsonl"},
+    {"name": "science", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/science/sampled.jsonl"},
+    {"name": "search", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/search/sampled.jsonl"},
+    {"name": "sql", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/sql/sampled.jsonl"},
+    {"name": "swe", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/swe/sampled.jsonl"},
+    {"name": "terminal_use", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/terminal_use/sampled.jsonl"},
+    {"name": "tool_calling", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_10m_stratified_swe/tool_calling/sampled.jsonl"}
+  ]
+}

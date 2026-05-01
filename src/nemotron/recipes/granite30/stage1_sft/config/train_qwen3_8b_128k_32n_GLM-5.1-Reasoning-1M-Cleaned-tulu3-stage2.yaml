@@ -1,0 +1,44 @@
+# Qwen3 8B SFT — 128k context, GLM data, Nemotron chat template
+#
+# Purpose: Isolate if repetition is Granite-specific or framework-wide
+# Hardware: 32 nodes x 4 GB200 = 128 GPUs
+# Parallelism: TP=4, PP=1, CP=2, SP=True
+# GPUs/model: 4*1*2 = 8, DP replicas: 16
+#
+# NOTE: Data must be re-tokenized with Qwen3 tokenizer + Nemotron chat template
+
+recipe:
+  _target_: megatron.bridge.recipes.qwen.qwen3_cp.qwen3_8b_cp_validation_config
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/exports/qwen3_8b_sft_128k_GLM-5.1_tulu3
+
+dataset:
+  seq_length: 131072
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/GLM-5.1-Reasoning-1M-Cleaned_tulu3-qwen8b/splits
+  packed_sequence_specs:
+    packed_sequence_size: 131072
+    pad_seq_to_mult: 4
+
+train:
+  train_iters: 102
+  global_batch_size: 128
+
+validation:
+  eval_interval: 5000
+
+model:
+  calculate_per_token_loss: false # every sample weighted equally regardless of length
+
+ddp:
+  use_distributed_optimizer: true
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/qwen3_8b_sft_128k_GLM-5.1_tulu3-stage2
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/qwen3_8b_sft_128k_GLM-5.1_tulu3-stage2
+  save_interval: 100
+  finetune: true
+
+logger:
+  log_interval: 1
+  wandb_project: "qwen3_8b_sft_128k"
+  wandb_exp_name: "qwen3_8b_sft_128k_GLM-5.1_tulu3-stage2"
+  wandb_entity: "ai-models"

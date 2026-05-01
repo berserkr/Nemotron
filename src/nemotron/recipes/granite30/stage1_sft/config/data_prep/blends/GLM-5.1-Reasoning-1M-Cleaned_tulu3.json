@@ -1,0 +1,24 @@
+{
+  "datasets": [
+    {
+      "name": "glm-reasoning-main",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/GLM-5.1-Reasoning-1M-Cleaned/main_openai.jsonl"
+    },
+    {
+      "name": "glm-reasoning-math",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/GLM-5.1-Reasoning-1M-Cleaned/Math_openai.jsonl"
+    },
+    {
+      "name": "glm-reasoning-phd-science",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/GLM-5.1-Reasoning-1M-Cleaned/PHD-Science_openai.jsonl"
+    },
+    {
+      "name": "glm-reasoning-multilingual-stem",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/GLM-5.1-Reasoning-1M-Cleaned/Multilingual-STEM_openai.jsonl"
+    },
+    {
+      "name": "tulu-3",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/tulu-3/tulu3_messages.jsonl"
+    }
+  ]
+}

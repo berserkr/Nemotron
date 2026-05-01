@@ -27,5 +27,7 @@ CFG=test_math_64k.yaml
 CFG=test_granite_3b_math_128k.yaml
 CFG=test_granite_3b_math_128k_cp4.yaml
 BASE_PATH=src/nemotron/recipes/super3/stage1_sft/config/data_prep
-python src/nemotron/recipes/super3/stage1_sft/data_prep.py --config ${BASE_PATH}/${CFG}
+CFG_PATH=${BASE_PATH}/${CFG}
+CFG_PATH=/mnt/home/bathen/src/github.com/Nemotron/src/nemotron/recipes/granite30/stage1_sft/config/data_prep/tokenization_32k_granite_8b.yaml
+python src/nemotron/recipes/super3/stage1_sft/data_prep.py --config $CFG_PATH
 

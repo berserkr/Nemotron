@@ -1,0 +1,16 @@
+{
+    "datasets": [
+      {
+        "name": "nemotron-cascade2-math-no-tool",
+        "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/low-effort-reasoning/Nemotron-Cascade2-Math_no_tool.jsonl"
+      },
+      {
+        "name": "nemotron-cascade2-science",
+        "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/low-effort-reasoning/Nemotron-Cascade2-Science.jsonl"
+      },
+      {
+        "name": "nemotron-cascade2-instruction-following",
+        "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/low-effort-reasoning/Nemotron-Cascade2-Instruction-Following.jsonl"
+      }
+    ]
+  }

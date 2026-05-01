@@ -1,0 +1,8 @@
+{
+  "datasets": [
+    {
+      "name": "tulu-3",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/tulu-3/tulu3_messages_empty_reasoning.jsonl"
+    }
+  ]
+}

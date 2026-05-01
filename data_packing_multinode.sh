@@ -23,8 +23,8 @@
 source ~/run.env
 
 # ---------- Config -----------------------------------------------------------
-: "${CFG:=test_granite_3b_math_128k_cp2.yaml}"
-BASE_PATH=src/nemotron/recipes/super3/stage1_sft/config/data_prep
+: "${CFG:=src/nemotron/recipes/super3/stage1_sft/config/data_prep/test_granite_3b_math_128k_cp2.yaml}"
+#BASE_PATH=src/nemotron/recipes/super3/stage1_sft/config/data_prep
 
 echo "$(date) Data prep config: ${CFG}"
 echo "$(date) Nodes: ${SLURM_NNODES}"
@@ -95,7 +95,7 @@ srun ${SRUN_ARGS} --nodes=1 --ntasks=1 -w "$head_node" \
              ray status; \
              echo 'Starting data prep pipeline...'; \
              python src/nemotron/recipes/super3/stage1_sft/data_prep.py \
-                 --config ${BASE_PATH}/${CFG}; \
+                 --config ${CFG}; \
              rc=\$?; \
              echo '=== Ray dashboard log ==='; \
              cat ${RAY_TMPDIR}/session_latest/logs/dashboard.log 2>/dev/null || echo 'No dashboard log found'; \

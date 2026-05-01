@@ -1,0 +1,88 @@
+{
+  "datasets": [
+    {
+      "name": "cascade2-chat-part1",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Chat_part_1.jsonl"
+    },
+    {
+      "name": "cascade2-chat-part2",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Chat_part_2.jsonl"
+    },
+    {
+      "name": "cascade2-chat-part3",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Chat_part_3.jsonl"
+    },
+    {
+      "name": "cascade2-chat-part4",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Chat_part_4.jsonl"
+    },
+    {
+      "name": "cascade2-conversational-agent",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Conversational-Agent.jsonl"
+    },
+    {
+      "name": "cascade2-instruction-following",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Instruction-Following.jsonl"
+    },
+    {
+      "name": "cascade2-math-no-tool",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Math_no_tool.jsonl"
+    },
+    {
+      "name": "cascade2-math-proof",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Math_proof.jsonl"
+    },
+    {
+      "name": "cascade2-math-tool",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Math_tool.jsonl"
+    },
+    {
+      "name": "cascade2-safety",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Safety.jsonl"
+    },
+    {
+      "name": "cascade2-science",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Science.jsonl"
+    },
+    {
+      "name": "cascade2-swe-agentic",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-SWE-agentic.jsonl"
+    },
+    {
+      "name": "cascade2-swe-agentless",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-SWE-agentless.jsonl"
+    },
+    {
+      "name": "cascade2-terminal-agent",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-Cascade2-Terminal-Agent.jsonl"
+    },
+    {
+      "name": "sft-competitive-programming-cpp-00",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-SFT-Competitive-Programming-v2_cpp_00.jsonl"
+    },
+    {
+      "name": "sft-competitive-programming-cpp-01",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-SFT-Competitive-Programming-v2_cpp_01.jsonl"
+    },
+    {
+      "name": "sft-competitive-programming-python-00",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-SFT-Competitive-Programming-v2_python_00.jsonl"
+    },
+    {
+      "name": "sft-competitive-programming-python-01",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-SFT-Competitive-Programming-v2_python_01.jsonl"
+    },
+    {
+      "name": "sft-competitive-programming-exercism",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-SFT-Competitive-Programming-v2_exercism.jsonl"
+    },
+    {
+      "name": "sft-competitive-programming-text-to-sql",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-SFT-Competitive-Programming-v2_text_to_sql.jsonl"
+    },
+    {
+      "name": "sft-safety",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v2/Nemotron-SFT-Safety-v1.jsonl"
+    }
+  ]
+}

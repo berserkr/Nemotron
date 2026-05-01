@@ -1,0 +1,53 @@
+# Granite 8B SFT — 32k context, TP=4, CP=2
+#
+# Purpose: Test packing + TP + CP (isolate CP effect vs cp1 config)
+# Hardware: 32 nodes x 4 GB200 = 128 GPUs
+# Parallelism: TP=4, PP=1, CP=2, SP=True
+# GPUs/model: 4*2 = 8, DP replicas: 16
+# GBS=128: accumulation = 128 / 16 = 8
+
+recipe:
+  _target_: megatron.bridge.recipes.granite.granite_8b.granite_8b_finetune_config
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/exports/granite_42_8b_sft_32k_cp2_1ep
+  tensor_model_parallel_size: 4
+  pipeline_model_parallel_size: 1
+  context_parallelism: 2
+  sequence_parallelism: true
+  seq_length: 32768
+  micro_batch_size: 1
+  global_batch_size: 64
+  finetune_lr: 1.0e-5
+  lr_warmup_iters: 27
+  train_iters: 540
+  packed_sequence: true
+  calculate_per_token_loss: false   # was true in stage 1
+
+ddp:
+  use_distributed_optimizer: true
+  #average_in_collective: false
+
+dataset:
+  seq_length: 32768
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/GLM-5.1-Reasoning-1M-Cleaned-32k-cp2/splits
+  packed_sequence_specs:
+    packed_sequence_size: 32768
+    pad_seq_to_mult: 4
+
+train:
+  train_iters: 540
+  global_batch_size: 64
+
+validation:
+  eval_interval: 100
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_42_8b_sft_32k_cp2_1ep_stage2
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_42_8b_sft_32k_cp2_1ep_stage2
+  save_interval: 100
+  finetune: true
+
+logger:
+  log_interval: 1
+  wandb_project: "granite_42_8b_sft_32k"
+  wandb_exp_name: "granite_42_8b_sft_32k_cp2_1ep_stage2"
+  wandb_entity: "ai-models"

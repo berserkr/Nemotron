@@ -1,0 +1,60 @@
+run:
+  env:
+    container: null
+
+blend_path: /mnt/home/bathen/src/github.com/Nemotron/src/nemotron/recipes/granite30/stage1_sft/config/data_prep/blends/tulu3.json
+
+output_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/tulu3-only-qwen8b-32k
+
+num_shards: 32
+
+tokenizer:
+  model: /mnt/vast/proj/checkpoints/bathen/models/base/Qwen3-8B-Base
+  add_bos: false
+  add_eos: true
+
+pack_size: 32768
+algorithm: first_fit_shuffle
+pad_seq_to_mult: 1
+
+seed: null
+parquet_row_group_size: 1000
+parquet_compression: zstd
+
+train_ratio: 0.98
+valid_ratio: 0.01
+test_ratio: 0.01
+
+chat_template: /mnt/home/bathen/src/github.com/granite-chat-template/granite_thinking/chat_template.jinja
+
+messages_field: messages
+tools_field: tools
+
+used_in_filter: null
+used_in_field: null
+
+max_doc_tokens: 32000
+
+sample: null
+sample_seed: 42
+force: false
+
+config_name: tulu3-only-qwen8b-32k
+
+plan:
+  planner_cpus: 0.5
+
+download:
+  batch_size: 1
+  stage_cpus: 0.5
+  hf_xet_high_performance: true
+  hf_xet_concurrent_range_gets: 32
+  max_retries: 3
+  timeout_sec: 300
+
+tokenization:
+  cpus_per_worker: 4
+
+observability:
+  pipeline_logging_interval_s: 30
+  wandb_log_pipeline_stats: true
