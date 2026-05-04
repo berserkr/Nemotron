@@ -1,0 +1,88 @@
+{
+  "datasets": [
+    {
+      "name": "agent_data_collection",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/agent_data_collection/sampled.jsonl"
+    },
+    {
+      "name": "agent_trajectories",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/agent_trajectories/sampled.jsonl"
+    },
+    {
+      "name": "agentic_programming",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/agentic_programming/sampled.jsonl"
+    },
+    {
+      "name": "code",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/code/sampled.jsonl"
+    },
+    {
+      "name": "cuda",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/cuda/sampled.jsonl"
+    },
+    {
+      "name": "financial_reasoning",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/financial_reasoning/sampled.jsonl"
+    },
+    {
+      "name": "formal_proofs",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/formal_proofs/sampled.jsonl"
+    },
+    {
+      "name": "infinibyte",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/infinibyte/sampled.jsonl"
+    },
+    {
+      "name": "instruction_following_chat",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/instruction_following_chat/sampled.jsonl"
+    },
+    {
+      "name": "interactive_agent_customer_service",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/interactive_agent_customer_service/sampled.jsonl"
+    },
+    {
+      "name": "low_effort_reasoning",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/low_effort_reasoning/sampled.jsonl"
+    },
+    {
+      "name": "math_w_tools",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/math_w_tools/sampled.jsonl"
+    },
+    {
+      "name": "math_wo_tools",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/math_wo_tools/sampled.jsonl"
+    },
+    {
+      "name": "multilingual",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/multilingual/sampled.jsonl"
+    },
+    {
+      "name": "safety",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/safety/sampled.jsonl"
+    },
+    {
+      "name": "science",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/science/sampled.jsonl"
+    },
+    {
+      "name": "search",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/search/sampled.jsonl"
+    },
+    {
+      "name": "sql",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/sql/sampled.jsonl"
+    },
+    {
+      "name": "swe",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/swe/sampled.jsonl"
+    },
+    {
+      "name": "terminal_use",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/terminal_use/sampled.jsonl"
+    },
+    {
+      "name": "tool_calling",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.2-sft-datasets-r260414a/v1_sampled_7m_stratified/tool_calling/sampled.jsonl"
+    }
+  ]
+}

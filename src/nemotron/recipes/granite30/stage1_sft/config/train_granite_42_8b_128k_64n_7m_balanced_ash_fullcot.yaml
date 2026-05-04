@@ -14,10 +14,10 @@ recipe:
   sequence_parallelism: true
   seq_length: 131072
   micro_batch_size: 1
-  global_batch_size: 64
+  global_batch_size: 128
   finetune_lr: 1.0e-5
-  lr_warmup_iters: 27
-  train_iters: 553
+  lr_warmup_iters: 425
+  train_iters: 8500
   packed_sequence: true
 
 model:
@@ -32,24 +32,24 @@ ddp:
 
 dataset:
   seq_length: 131072
-  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/v1_sampled_7m_stratified_128k_8b_cp4/splits
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot/splits
   packed_sequence_specs:
     packed_sequence_size: 131072
     pad_seq_to_mult: 4
 
 train:
-  train_iters: 553
-  global_batch_size: 64
+  train_iters: 8500
+  global_batch_size: 128
 
 checkpoint:
-  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_stratified_128k_8b_cp4_stage1
-  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_stratified_128k_8b_cp4_stage1
-  save_interval: 100
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter
+  save_interval: 1000
   finetune: true
   #most_recent_k: 3
 
 logger:
   log_interval: 1
-  wandb_project: "granite_42_8b_sft_128k"
-  wandb_exp_name: "granite_v1_sampled_7m_stratified_128k_8b_cp4_stage1"
+  wandb_project: "granite_thinking_8b_sft_128k_dev"
+  wandb_exp_name: "granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8_5k_iter"
   wandb_entity: "ai-models"

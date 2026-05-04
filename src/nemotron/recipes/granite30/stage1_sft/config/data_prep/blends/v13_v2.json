@@ -1,0 +1,12 @@
+{
+  "datasets": [
+    {"name": "code_1", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/v13/code_1.jsonl"},
+    {"name": "code_2", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/v13/code_2.jsonl"},
+    {"name": "code_3", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/v13/code_3.jsonl"},
+    {"name": "code_4", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/v13/code_4.jsonl"},
+    {"name": "general", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/v13/general.jsonl"},
+    {"name": "science", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/v13/science.jsonl"},
+    {"name": "openmathreasoning", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/v13/openmathreasoning_verified_sample10.jsonl"},
+    {"name": "ot3_math", "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/v13/ot3_math.jsonl"}
+  ]
+}

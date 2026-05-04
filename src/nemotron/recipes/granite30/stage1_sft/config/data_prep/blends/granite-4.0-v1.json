@@ -1,0 +1,120 @@
+{
+  "datasets": [
+    {
+      "name": "144b-sqlinstruct-100k-no-thinking",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/144b_sqlinstruct_100k_no_thinking.jsonl"
+    },
+    {
+      "name": "137c-code-cot-python-25k-fwd-bwd-structured-xml-tags-v1",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/137c_code_cot_python_25k_fwd_bwd_structured_xml_tags_v1.jsonl"
+    },
+    {
+      "name": "146c-temporal-best-16k-no-thinking",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/146c_temporal_best_16k_no_thinking.jsonl"
+    },
+    {
+      "name": "136-science-qa-phi4",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/136_science-qa-phi4.jsonl"
+    },
+    {
+      "name": "20-blue-sc2instruct-v3-unfiltered",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/20_blue_sc2instruct_v3_unfiltered.jsonl"
+    },
+    {
+      "name": "21-blue-ocp-v2-unfiltered",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/21_blue_ocp_v2_unfiltered.jsonl"
+    },
+    {
+      "name": "22-180k-processed-cont-domain",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/22_180k_processed_cont_domain.jsonl"
+    },
+    {
+      "name": "80-blue-code-translation-v1",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/80_blue_code_translation-v1.jsonl"
+    },
+    {
+      "name": "77-blue-code-genplus-4plus-v3",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/77_blue_code_genplus-4plus-v3.jsonl"
+    },
+    {
+      "name": "87-smoltalk-clean",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/87_smoltalk_clean.jsonl"
+    },
+    {
+      "name": "self-oss-instruct",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/self-oss-instruct.jsonl"
+    },
+    {
+      "name": "openmathreasoning-verified-sample10-dedup",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/openmathreasoning_verified_sample10_dedup.jsonl"
+    },
+    {
+      "name": "97e-omnisql-filtered-200k-no-thinking",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/97e_OmniSQL_filtered_200k_no_thinking.jsonl"
+    },
+    {
+      "name": "chat-if-s4",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/chat-if_s4.jsonl"
+    },
+    {
+      "name": "combined-post-filtered-without-tools",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/combined_post_filtered_without_tools.jsonl"
+    },
+    {
+      "name": "misc-random-s3",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/misc_random_s3.jsonl"
+    },
+    {
+      "name": "metamathqa-50k",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/metamathqa-50k.jsonl"
+    },
+    {
+      "name": "enterprise-2-total",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/enterprise-2_total.jsonl"
+    },
+    {
+      "name": "multilingual-random-s4",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/multilingual_random_s4.jsonl"
+    },
+    {
+      "name": "noncot-jsonall-sft",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/noncot_jsonall_sft.jsonl"
+    },
+    {
+      "name": "nemotron-stem-verifiable-dedup",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/nemotron_stem_verifiable_dedup.jsonl"
+    },
+    {
+      "name": "safety-random-s2",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/safety_random_s2.jsonl"
+    },
+    {
+      "name": "numina-cot-100k",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/numina-cot-100k.jsonl"
+    },
+    {
+      "name": "science-32k-unique-nothink",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/science_32k_unique_nothink.jsonl"
+    },
+    {
+      "name": "102a-scale-coding-qua-dif-int-top-processed-cont-domain",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/102a_scale_coding_qua_dif_int_qua_dif_int_qua_dif_int_top_processed_cont_domain.jsonl"
+    },
+    {
+      "name": "101-salesforce-email",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/101_salesforce_email.jsonl"
+    },
+    {
+      "name": "123d-fim-python-fixed",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/123d_fim-python-fixed.jsonl"
+    },
+    {
+      "name": "123e-fim-multi-lang",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/123e_fim-multi-lang.jsonl"
+    },
+    {
+      "name": "128a-opencodeinstruct-train-500k",
+      "path": "/mnt/vast/proj/checkpoints/bathen/datasets/sft/granite-4.1-v1/general_openai/128a_OpenCodeInstruct-train-500k.jsonl"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+# Qwen3 8B SFT — 128k context, GLM data, Nemotron chat template
+#
+# Purpose: Isolate if repetition is Granite-specific or framework-wide
+# Hardware: 32 nodes x 4 GB200 = 128 GPUs
+# Parallelism: TP=4, PP=1, CP=2, SP=True
+# GPUs/model: 4*1*2 = 8, DP replicas: 16
+#
+# NOTE: Data must be re-tokenized with Qwen3 tokenizer + Nemotron chat template
+
+recipe:
+  _target_: megatron.bridge.recipes.qwen.qwen3_cp.qwen3_8b_cp_validation_config
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/Qwen3-8B-Base
+
+
+dataset:
+  seq_length: 131072
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/low-effort-qwen8b-128k/splits
+  packed_sequence_specs:
+    packed_sequence_size: 131072
+    pad_seq_to_mult: 256
+
+train:
+  train_iters: 504
+  global_batch_size: 32
+
+validation:
+  eval_interval: 5000
+
+ddp:
+  use_distributed_optimizer: true
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/low-effort-qwen8b-128k
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/low-effort-qwen8b-128k
+  save_interval: 100
+  finetune: true
+
+logger:
+  log_interval: 1
+  wandb_project: "qwen3_8b_sft_128k"
+  wandb_exp_name: "low-effort-qwen8b-128k"
+  wandb_entity: "ai-models"

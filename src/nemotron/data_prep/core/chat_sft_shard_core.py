@@ -189,6 +189,12 @@ def process_chat_sft_spool_core(
     if chat_template:
         _apply_chat_template(tokenizer, chat_template)
 
+    if shard_index == 0:
+        print(f"TEMPLATE_CHECK: truncate_history_thinking={'truncate_history_thinking' in tokenizer.chat_template}")
+        print(f"TEMPLATE_CHECK: _last_user_idx={'_last_user_idx' in tokenizer.chat_template}")
+        print(f"TEMPLATE_CHECK: has_nonempty_reasoning={'_has_nonempty_reasoning' in str(tokenizer.chat_template)}")
+        print(f"TEMPLATE_CHECK: len={len(tokenizer.chat_template)}")
+
     stats: dict[str, Any] = {
         "num_input_rows": 0,
         "num_output_sequences": 0,
@@ -216,10 +222,11 @@ def process_chat_sft_spool_core(
             stats["num_filtered"] += 1
             return
 
-        is_valid, _ = validate_conversation(messages, tools)
+        is_valid, error_message = validate_conversation(messages, tools)
         if not is_valid:
             stats["num_filtered"] += 1
             stats["num_validation_errors"] += 1
+            print(f"ERROR {error_message}in validate_conversation", flush=True)
             return
 
         try:
@@ -227,13 +234,15 @@ def process_chat_sft_spool_core(
         except (json.JSONDecodeError, KeyError, TypeError):
             stats["num_filtered"] += 1
             stats["num_errors"] += 1
+            print(f"ERROR in replace_json_args", flush=True)
             return
 
         try:
             masked_results = create_masked_messages(messages_local, tokenizer, tools)
-        except Exception:
+        except Exception as e:
             stats["num_filtered"] += 1
             stats["num_errors"] += 1
+            print(f"ERROR in create_masked_messages: {e} - num_errors", flush=True)
             return
 
         for chunks, _ in masked_results:
@@ -250,8 +259,9 @@ def process_chat_sft_spool_core(
 
             try:
                 input_ids, loss_mask = _tokenize_chunks_with_mask(tokenizer, processed_chunks)
-            except Exception:
+            except Exception as e:
                 stats["num_errors"] += 1
+                print(f"ERROR in _tokenize_chunks_with_mask: {e} - num_errors", flush=True)
                 continue
 
             # tokenized debug must go here

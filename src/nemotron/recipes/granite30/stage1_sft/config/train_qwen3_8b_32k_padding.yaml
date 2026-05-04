@@ -1,0 +1,47 @@
+# Qwen3 8B Instruct SFT — 32k context, tulu-3 only
+#
+# Purpose: Test if short-data SFT on instruct model preserves reasoning
+# Hardware: 8 nodes x 4 GB200 = 32 GPUs
+# Parallelism: TP=4, PP=1, CP=1
+
+recipe:
+  _target_: megatron.bridge.recipes.qwen.qwen3_cp.qwen3_8b_cp_validation_config
+  hf_model_path: Qwen/Qwen3-8B
+
+dataset:
+  seq_length: 32768
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/tulu3-only-qwen8b-32k/splits
+  packed_sequence_specs:
+    packed_sequence_size: 32768
+    pad_seq_to_mult: 1
+
+model:
+  context_parallel_size: 1
+  sequence_parallel: false
+  seq_length: 32768
+  calculate_per_token_loss: true
+  attention_backend: flash_attn
+  recompute_granularity: selective
+
+train:
+  train_iters: 30
+  global_batch_size: 32
+  micro_batch_size: 1
+
+validation:
+  eval_interval: 5000
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/qwen3_8b_instruct_tulu3_only_32k
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/qwen3_8b_instruct_tulu3_only_32k
+  save_interval: 30
+  finetune: true
+
+ddp:
+  use_distributed_optimizer: true
+
+logger:
+  log_interval: 1
+  wandb_project: "qwen3_8b_sft_32k"
+  wandb_exp_name: "qwen3_8b_instruct_tulu3_only_32k"
+  wandb_entity: "ai-models"

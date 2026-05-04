@@ -7,22 +7,21 @@
 
 recipe:
   _target_: megatron.bridge.recipes.granite.granite_8b.granite_8b_finetune_config
-  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-4.1-8b-base-special
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/exports/granite_42_8b_sft_128k_iter_10m
   tensor_model_parallel_size: 4
   pipeline_model_parallel_size: 1
   context_parallelism: 2
   sequence_parallelism: true
   seq_length: 131072
   micro_batch_size: 1
-  global_batch_size: 64
+  global_batch_size: 128
   finetune_lr: 1.0e-5
-  lr_warmup_iters: 27
-  train_iters: 553
+  lr_warmup_iters: 25
+  train_iters: 474
   packed_sequence: true
 
 model:
-  calculate_per_token_loss: true
-  average_in_collective: false
+  calculate_per_token_loss: false
 #  recompute_granularity: "full"
 #  recompute_method: "block"
 #  recompute_num_layers: 1
@@ -32,24 +31,24 @@ ddp:
 
 dataset:
   seq_length: 131072
-  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/v1_sampled_7m_stratified_128k_8b_cp4/splits
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/blend_sampling_10m_balanced_256pad_uniform/splits
   packed_sequence_specs:
     packed_sequence_size: 131072
     pad_seq_to_mult: 4
 
 train:
-  train_iters: 553
-  global_batch_size: 64
+  train_iters: 474
+  global_batch_size: 128
 
 checkpoint:
-  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_stratified_128k_8b_cp4_stage1
-  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_stratified_128k_8b_cp4_stage1
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_42_8b_sft_128k_10m_stage2
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_42_8b_sft_128k_10m_stage2
   save_interval: 100
   finetune: true
-  #most_recent_k: 3
+  most_recent_k: 3
 
 logger:
   log_interval: 1
   wandb_project: "granite_42_8b_sft_128k"
-  wandb_exp_name: "granite_v1_sampled_7m_stratified_128k_8b_cp4_stage1"
+  wandb_exp_name: "blend_sampling_10m_balanced_stage2"
   wandb_entity: "ai-models"
