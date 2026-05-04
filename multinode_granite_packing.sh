@@ -36,7 +36,7 @@ echo "$(date) Config: ${CFG}"
 echo "$(date) Nodes: ${SLURM_NNODES} x ${SLURM_CPUS_PER_TASK} CPUs = $((SLURM_NNODES * SLURM_CPUS_PER_TASK)) total CPUs"
 
 # ---------- Container --------------------------------------------------------
-container_image="/mnt/ss/squash/nemo_sft_0430.sqsh"
+container_image="/proj/squash/nemo_sft_python312_v4.sqsh"
 container_mounts="/mnt/ss:/mnt/vast,/tmp:/tmp"
 
 SRUN_ARGS="--kill-on-bad-exit=1 \

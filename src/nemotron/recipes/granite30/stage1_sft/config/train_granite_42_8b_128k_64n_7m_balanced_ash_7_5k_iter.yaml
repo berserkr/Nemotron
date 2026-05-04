@@ -45,7 +45,7 @@ checkpoint:
   save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_7500it
   load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_7500it
   save_interval: 1000
-  finetune: true
+  finetune: false
   #most_recent_k: 3
 
 logger:

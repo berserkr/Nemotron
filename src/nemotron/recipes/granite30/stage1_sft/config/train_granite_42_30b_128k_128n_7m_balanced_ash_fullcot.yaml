@@ -1,0 +1,45 @@
+recipe:
+  _target_: megatron.bridge.recipes.granite.granite_30b.granite_30b_finetune_config
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/30b-soft-lc-512k-lr1e-4-merged-3-7-special
+  tensor_model_parallel_size: 4
+  pipeline_model_parallel_size: 8
+  context_parallelism: 8
+  sequence_parallelism: true
+  seq_length: 131072
+  micro_batch_size: 1
+  global_batch_size: 128
+  finetune_lr: 1.0e-5
+  lr_warmup_iters: 425
+  train_iters: 8500
+  packed_sequence: true
+  lr_decay_style: constant
+
+model:
+  calculate_per_token_loss: true
+  average_in_collective: false
+
+ddp:
+  use_distributed_optimizer: true
+
+dataset:
+  seq_length: 131072
+  super3_packed_sft_dir: /mnt/vast/proj/checkpoints/bathen/datasets/sft/v1_sampled_7m_balanced_ash_128k_30b_cp8_fullcot/splits
+  packed_sequence_specs:
+    packed_sequence_size: 131072
+    pad_seq_to_mult: 16
+
+train:
+  train_iters: 8500
+  global_batch_size: 128
+
+checkpoint:
+  save: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_v1_sampled_7m_balanced_ash_128k_cp8_fullcot_8500iter
+  load: /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite30b_v1_sampled_7m_balanced_ash_128k_cp8_fullcot_8500iter
+  save_interval: 1000
+  finetune: true
+
+logger:
+  log_interval: 1
+  wandb_project: "granite_thinking_30b_sft_128k_dev"
+  wandb_exp_name: "granite30b_v1_sampled_7m_balanced_ash_128k_cp8_fullcot_8500iter"
+  wandb_entity: "ai-models"
