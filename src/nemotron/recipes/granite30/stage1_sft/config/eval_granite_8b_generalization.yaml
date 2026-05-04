@@ -1,0 +1,32 @@
+# Granite 8B Generalization Loss Evaluation
+#
+# Evaluates held-out reasoning data against SFT checkpoints to detect overfitting.
+# Single-node eval: TP=4, CP=1, 4 GB200 GPUs.
+#
+# Usage:
+#   torchrun --nproc_per_node=4 eval_generalization_loss.py \
+#       --config config/eval_granite_8b_generalization.yaml \
+#       --checkpoint-load /path/to/checkpoints \
+#       --held-out-data /path/to/reasoning_holdout/splits \
+#       --step 500 --sample 1000
+
+recipe:
+  _target_: megatron.bridge.recipes.granite.granite_8b.granite_8b_finetune_config
+  hf_model_path: /mnt/vast/proj/checkpoints/bathen/models/base/granite-3.3-8b-base-special
+  tensor_model_parallel_size: 4
+  pipeline_model_parallel_size: 1
+  context_parallelism: 1
+  sequence_parallelism: true
+  seq_length: 131072
+  micro_batch_size: 1
+  global_batch_size: 4
+  packed_sequence: true
+  train_iters: 0
+
+model:
+  recompute_granularity: "full"
+  recompute_method: "block"
+  recompute_num_layers: 1
+
+ddp:
+  use_distributed_optimizer: false
