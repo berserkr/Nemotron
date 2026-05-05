@@ -83,7 +83,7 @@ def fix_split_symlinks(output_dir: Path, dry_run: bool = False) -> dict[str, dic
             # Path convention: .../datasets/{dataset_name}/{plan_hash}/shard_NNNNNN.parquet
             # parent = plan_hash dir, parent.parent = dataset_name dir
             dataset_name = parquet_path.parent.parent.name
-            link_name = f"{dataset_name}_{parquet_path.name}"
+            link_name = f"{dataset_name}__{parquet_path.name}"
             link_path = split_dir / link_name
 
             if dry_run:

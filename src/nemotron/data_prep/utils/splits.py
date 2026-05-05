@@ -180,7 +180,7 @@ def realize_packed_shards_into_split_dirs(
             # so bare filenames cause later datasets to overwrite earlier ones.
             # Path convention: .../datasets/{dataset_name}/{plan_hash}/shard_NNNNNN.parquet
             dataset_name = parquet_path.parent.parent.name
-            link_path = split_dir / f"{dataset_name}_{parquet_path.name}"
+            link_path = split_dir / f"{dataset_name}__{parquet_path.name}"
 
             if link_path.exists() or link_path.is_symlink():
                 # Remove existing link/file to update
