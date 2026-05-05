@@ -21,12 +21,9 @@ recipe:
   micro_batch_size: 1
   global_batch_size: 4
   packed_sequence: true
-  train_iters: 0
+  train_iters: 1
 
 model:
   recompute_granularity: "full"
   recompute_method: "block"
   recompute_num_layers: 1
-
-ddp:
-  use_distributed_optimizer: false

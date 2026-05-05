@@ -63,7 +63,7 @@ from typing import Any, Optional
 
 import torch
 from megatron.bridge.data.datasets.packed_sequence import PackedSequenceSpecs
-from megatron.bridge.training.config import ConfigContainer, FinetuningDatasetConfig
+from megatron.bridge.training.config import ConfigContainer, FinetuningDatasetConfig, runtime_config_update
 from megatron.bridge.training.eval import evaluate
 from megatron.bridge.training.gpt_step import forward_step
 from megatron.bridge.training.setup import setup
@@ -144,8 +144,9 @@ def _resolve_val_path(held_out_data: str) -> str:
 
 def build_eval_config(
     base_config_path: str,
-    checkpoint_load_path: str,
     val_data_path: str,
+    checkpoint_load_path: Optional[str] = None,
+    hf_checkpoint_path: Optional[str] = None,
     seq_length: Optional[int] = None,
     eval_iters: Optional[int] = None,
     cli_overrides: Optional[list[str]] = None,
@@ -157,6 +158,12 @@ def build_eval_config(
         config,
         default_target="megatron.bridge.recipes.granite.granite_8b.granite_8b_finetune_config",
     )
+
+    # If using HF checkpoint, override hf_model_path in recipe kwargs
+    # This loads weights directly via AutoBridge — no distributed checkpoint needed
+    if hf_checkpoint_path:
+        recipe_kwargs["hf_model_path"] = hf_checkpoint_path
+
     recipe_func = import_recipe_function(recipe_target)
     cfg: ConfigContainer = recipe_func(**recipe_kwargs)
 
@@ -180,16 +187,25 @@ def build_eval_config(
 
     # -- Eval-only mode --
     cfg.validation.skip_train = True
-    cfg.validation.eval_interval = None
-    cfg.train.train_iters = 0
+    cfg.validation.eval_interval = 1
+    # train_iters must be > 0 for the scheduler to initialize; skip_train prevents actual training
+    cfg.train.train_iters = 1
 
     if eval_iters is not None:
         cfg.validation.eval_iters = eval_iters
 
     # -- Checkpoint --
-    cfg.checkpoint.load = checkpoint_load_path
-    cfg.checkpoint.pretrained_checkpoint = None
-    cfg.checkpoint.finetune = False
+    if hf_checkpoint_path:
+        # HF path: weights already loaded via AutoBridge in recipe, no checkpoint loading
+        cfg.checkpoint.load = None
+        cfg.checkpoint.pretrained_checkpoint = None
+    else:
+        # Megatron distributed checkpoint: skip optimizer (topology may differ)
+        cfg.checkpoint.load = checkpoint_load_path
+        cfg.checkpoint.pretrained_checkpoint = None
+        cfg.checkpoint.finetune = True
+        cfg.checkpoint.load_optim = False
+        cfg.checkpoint.load_rng = False
     cfg.checkpoint.save = None
     cfg.checkpoint.save_interval = None
 
@@ -198,7 +214,7 @@ def build_eval_config(
 
     packed_specs = PackedSequenceSpecs(
         packed_sequence_size=effective_seq_length,
-        packed_train_data_path=None,
+        packed_train_data_path=val_data_path,  # Unused (skip_train=True) but setup requires it
         packed_val_data_path=val_data_path,
         packed_metadata_path=None,
     )
@@ -220,8 +236,6 @@ def build_eval_config(
         cfg.logger.wandb_project = None
         cfg.logger.wandb_exp_name = None
 
-    cfg.ddp.use_distributed_optimizer = False
-
     return cfg
 
 
@@ -230,8 +244,10 @@ def main():
         description="Compute generalization loss for a single checkpoint on held-out reasoning data"
     )
     parser.add_argument("--config", type=str, required=True)
-    parser.add_argument("--checkpoint-load", type=str, required=True,
-                        help="Checkpoint directory (parent of iter_XXXXXXX/)")
+    parser.add_argument("--checkpoint-load", type=str, default=None,
+                        help="Megatron checkpoint directory (parent of iter_XXXXXXX/)")
+    parser.add_argument("--hf-checkpoint", type=str, default=None,
+                        help="HuggingFace checkpoint directory (avoids topology mismatch)")
     parser.add_argument("--held-out-data", type=str, required=True,
                         help="Held-out validation data (packed parquet)")
     parser.add_argument("--step", type=int, required=True,
@@ -249,9 +265,13 @@ def main():
     args, unknown_args = parser.parse_known_args()
     logging.basicConfig(level=logging.INFO)
 
+    if not args.checkpoint_load and not args.hf_checkpoint:
+        parser.error("Must provide either --checkpoint-load or --hf-checkpoint")
+
+    ckpt_display = args.hf_checkpoint or args.checkpoint_load
     _print_rank_0(f"\n{'='*60}")
     _print_rank_0(f"Evaluating generalization loss — step {args.step}")
-    _print_rank_0(f"Checkpoint: {args.checkpoint_load}")
+    _print_rank_0(f"Checkpoint: {ckpt_display}")
     _print_rank_0(f"Held-out data: {args.held_out_data}")
     if args.sample:
         _print_rank_0(f"Sampling: {args.sample} rows (seed={args.sample_seed})")
@@ -287,16 +307,19 @@ def main():
     # Build config and run eval
     cfg = build_eval_config(
         base_config_path=args.config,
-        checkpoint_load_path=args.checkpoint_load,
         val_data_path=eval_data_path,
+        checkpoint_load_path=args.checkpoint_load,
+        hf_checkpoint_path=args.hf_checkpoint,
         seq_length=args.seq_length,
         eval_iters=args.eval_iters,
         cli_overrides=unknown_args if unknown_args else None,
     )
 
-    state = GlobalState(cfg)
+    runtime_config_update(cfg)
+    state = GlobalState()
+    state.cfg = cfg
 
-    from megatron.bridge.training.data_provider import get_dataset_provider
+    from megatron.bridge.data.utils import get_dataset_provider
 
     dataset_provider = get_dataset_provider(cfg.dataset)
     setup_output = setup(state, dataset_provider)

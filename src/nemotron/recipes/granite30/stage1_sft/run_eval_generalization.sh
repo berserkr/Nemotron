@@ -30,16 +30,19 @@ SAMPLE="${SAMPLE:-}"
 SAMPLE_SEED="${SAMPLE_SEED:-42}"
 EVAL_ITERS="${EVAL_ITERS:-}"
 
+OUTPUT_BASE=/mnt/vast/proj/checkpoints/bathen/models/sft
+RUN_NAME=granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter
+
 CHECKPOINTS=(
-    /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter/iter_0001000
-    /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter/iter_0002000
-    /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter/iter_0003000
-    /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter/iter_0004000
-    /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter/iter_0005000
-    /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter/iter_0006000
-    /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter/iter_0007000
-    /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter/iter_0008000
-    /mnt/vast/proj/checkpoints/bathen/models/nemo_run/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter/iter_0008500
+    "${OUTPUT_BASE}/${RUN_NAME}_0001000"
+    "${OUTPUT_BASE}/${RUN_NAME}_0002000"
+    "${OUTPUT_BASE}/${RUN_NAME}_0003000"
+    "${OUTPUT_BASE}/${RUN_NAME}_0004000"
+    "${OUTPUT_BASE}/${RUN_NAME}_0005000"
+    "${OUTPUT_BASE}/${RUN_NAME}_0006000"
+    "${OUTPUT_BASE}/${RUN_NAME}_0007000"
+    "${OUTPUT_BASE}/${RUN_NAME}_0008000"
+    "${OUTPUT_BASE}/${RUN_NAME}_0008500"
 )
 
 # =============================================================================
@@ -90,9 +93,9 @@ FAILED_STEPS=()
 SUCCEEDED=0
 
 for ckpt in "${CHECKPOINTS[@]}"; do
-    iter_name=$(basename "$ckpt")
-    iter_num="${iter_name#iter_}"
-    step=$((10#$iter_num))  # strip leading zeros
+    # Extract step from path: .../run_name_0001000 -> 1000
+    iter_suffix=$(basename "$ckpt" | grep -oP '\d+$')
+    step=$((10#$iter_suffix))
 
     echo "=============================="
     echo "Evaluating: $ckpt"
@@ -104,15 +107,15 @@ for ckpt in "${CHECKPOINTS[@]}"; do
         --nnodes="${NNODES}" \
         "${SCRIPT_DIR}/eval_generalization_loss.py" \
         --config "${CONFIG}" \
-        --checkpoint-load "$(dirname "$ckpt")" \
+        --hf-checkpoint "$ckpt" \
         --held-out-data "${HELD_OUT_DATA}" \
         --step "${step}" \
         --output "${OUTPUT}" \
         ${EXTRA_ARGS}; then
         SUCCEEDED=$((SUCCEEDED + 1))
-        echo "Done: $iter_name"
+        echo "Done: step $step"
     else
-        echo "WARNING: Failed for $iter_name"
+        echo "WARNING: Failed for step $step"
         FAILED_STEPS+=("$step")
     fi
     echo ""
