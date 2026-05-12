@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # =============================================================================
 
 CONFIG="${SCRIPT_DIR}/config/eval_granite_8b_generalization.yaml"
-HELD_OUT_DATA=/mnt/vast/proj/checkpoints/bathen/datasets/reasoning_holdout/splits
+HELD_OUT_DATA=/mnt/vast/proj/checkpoints/bathen/datasets/sft/v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot/splits/valid
 OUTPUT="${SCRIPT_DIR}/results/granite8b_generalization_loss.json"
 
 NPROC_PER_NODE=4
@@ -34,16 +34,17 @@ OUTPUT_BASE=/mnt/vast/proj/checkpoints/bathen/models/sft
 RUN_NAME=granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter
 
 CHECKPOINTS=(
-    "${OUTPUT_BASE}/${RUN_NAME}_0001000"
-    "${OUTPUT_BASE}/${RUN_NAME}_0002000"
-    "${OUTPUT_BASE}/${RUN_NAME}_0003000"
-    "${OUTPUT_BASE}/${RUN_NAME}_0004000"
-    "${OUTPUT_BASE}/${RUN_NAME}_0005000"
-    "${OUTPUT_BASE}/${RUN_NAME}_0006000"
-    "${OUTPUT_BASE}/${RUN_NAME}_0007000"
-    "${OUTPUT_BASE}/${RUN_NAME}_0008000"
-    "${OUTPUT_BASE}/${RUN_NAME}_0008500"
+    /mnt/vast/proj/checkpoints/bathen/models/sft/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter_0001000
+    /mnt/vast/proj/checkpoints/bathen/models/sft/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter_0002000
+    /mnt/vast/proj/checkpoints/bathen/models/sft/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter_0003000
+    /mnt/vast/proj/checkpoints/bathen/models/sft/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter_0004000
+    /mnt/vast/proj/checkpoints/bathen/models/sft/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter_0005000
+    /mnt/vast/proj/checkpoints/bathen/models/sft/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter_0006000
+    /mnt/vast/proj/checkpoints/bathen/models/sft/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter_0007000
+    /mnt/vast/proj/checkpoints/bathen/models/sft/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter_0008000
+    /mnt/vast/proj/checkpoints/bathen/models/sft/granite_v1_sampled_7m_balanced_ash_128k_8b_cp2_fullcot_8500iter_0008500
 )
+
 
 # =============================================================================
 # Validate

@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Repair split symlinks for packed SFT data affected by the shard-overwrite bug.
+"""Repair split symlinks for packed SFT data.
 
-The bug: realize_packed_shards_into_split_dirs() used bare filenames for symlinks
-(e.g. shard_000000.parquet), so when multiple datasets produced identically-named
-shards, later datasets silently overwrote earlier ones in the split directory.
+Problem: dataset-prefixed symlink names (e.g. code_2__shard_000029.parquet)
+cause data to be read grouped by dataset when the loader sorts alphabetically,
+defeating the shuffle that blend.json provides.
 
 This script:
-  1. Reads blend.json from the output directory
-  2. Clears existing (broken) symlinks from splits/{train,valid,test}/
-  3. Recreates symlinks with dataset-prefixed names to avoid collisions:
-     {dataset_name}_shard_NNNNNN.parquet
+  1. Reads blend.json from the output directory (already in shuffled order)
+  2. Clears existing symlinks from splits/{train,valid,test}/
+  3. Recreates symlinks with sequential numbering (shard_000000.parquet, ...)
+     preserving the shuffled order from blend.json so cross-dataset mixing
+     is maintained regardless of how the data loader orders files.
 
 Usage:
     python fix_split_symlinks.py /path/to/output_dir
@@ -26,7 +27,7 @@ from pathlib import Path
 
 
 def fix_split_symlinks(output_dir: Path, dry_run: bool = False) -> dict[str, dict[str, int]]:
-    """Regenerate split symlinks with dataset-prefixed names.
+    """Regenerate split symlinks with sequential naming preserving shuffle order.
 
     Args:
         output_dir: Root output directory containing blend.json and splits/
@@ -67,11 +68,11 @@ def fix_split_symlinks(output_dir: Path, dry_run: bool = False) -> dict[str, dic
         if not dry_run:
             split_dir.mkdir(parents=True, exist_ok=True)
 
-        # Phase 2: Create new symlinks with dataset_name prefix
+        # Phase 2: Create symlinks with sequential index (preserves blend.json shuffle)
         created = 0
         missing = 0
 
-        for shard_path_str in shard_paths:
+        for seq_idx, shard_path_str in enumerate(shard_paths):
             parquet_path_str = f"{shard_path_str}.parquet"
             parquet_path = Path(parquet_path_str)
 
@@ -80,14 +81,12 @@ def fix_split_symlinks(output_dir: Path, dry_run: bool = False) -> dict[str, dic
                 print(f"  MISSING: {parquet_path_str}")
                 continue
 
-            # Path convention: .../datasets/{dataset_name}/{plan_hash}/shard_NNNNNN.parquet
-            # parent = plan_hash dir, parent.parent = dataset_name dir
-            dataset_name = parquet_path.parent.parent.name
-            link_name = f"{dataset_name}__{parquet_path.name}"
+            # Sequential naming preserves the shuffled order from blend.json
+            link_name = f"shard_{seq_idx:06d}.parquet"
             link_path = split_dir / link_name
 
             if dry_run:
-                print(f"  WOULD CREATE: {link_path} -> {parquet_path}")
+                print(f"  WOULD CREATE: {link_path} -> .../{parquet_path.parent.parent.name}/.../{parquet_path.name}")
             else:
                 try:
                     rel_target = os.path.relpath(parquet_path, split_dir)

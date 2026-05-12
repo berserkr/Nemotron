@@ -149,6 +149,8 @@ CFG=src/nemotron/recipes/granite30/stage1_sft/config/train_granite_42_8b_128k_32
 CFG=src/nemotron/recipes/granite30/stage1_sft/config/train_granite_42_8b_128k_32n_7m_balanced_ash_15k_iter.yaml
 CFG=src/nemotron/recipes/granite30/stage1_sft/config/train_granite_42_8b_128k_64n_7m_balanced_ash_7_5k_iter.yaml
 #CFG=src/nemotron/recipes/granite30/stage1_sft/config/train_granite_42_8b_128k_64n_7m_balanced_ash_fullcot.yaml
+CFG=src/nemotron/recipes/granite30/stage1_sft/config/train_granite_42_8b_128k_64n_v13_4_6k_iter.yaml
+#CFG=src/nemotron/recipes/granite30/stage1_sft/config/train_granite_42_8b_128k_64n_v13_v2_4_6k_iter.yaml
 CMD="CUDA_VISIBLE_DEVICES=0,1,2,3 CUDA_HOME=/usr/local/cuda-12 torchrun ${DISTRIBUTED_ARGS} src/nemotron/recipes/super3/stage1_sft/train.py --config ${CFG}"
 
 echo "*********************** START ****************************"
