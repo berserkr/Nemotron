@@ -9,6 +9,7 @@ Run from repo root:
 """
 
 import importlib.util
+import json
 from pathlib import Path
 
 from transformers import AutoTokenizer
@@ -50,5 +51,7 @@ def render_for_template(template_path: Path) -> None:
 
 
 if __name__ == "__main__":
+    print(f"{'=' * 72}\nINPUT CONVERSATION\n{'=' * 72}")
+    print(json.dumps(MESSAGES, indent=2))
     for name in TEMPLATES:
         render_for_template(REPO_ROOT / name)
